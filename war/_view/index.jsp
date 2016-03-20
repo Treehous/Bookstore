@@ -1,18 +1,56 @@
 <!DOCTYPE html>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="mainstyle.css">
 </head>
 <body>
 
-  <ul>
-	<li><a href="#home" id="logo"><img src = "logo-yorkcollege.png"></img>
-	<li><a href="#news">News</a></li>
-	<li><a href="#contact">Contact</a></li>
-	<li><a href="#about">About</a></li>
-	</ul>
-</ul>
+<body>
 
-<div style="padding:20px;margin-top:30px;background-color:#1abc9c;height:1500px;">
+<div class="main">
+<img src="logo.gif.png" alt="Worst School 10/10"></img>
+
+<div class="mainNav">
+<ul class="navBar">
+  <li><a class="active" href="#home">Look Up Department</a></li>
+  <li><a href="booklist.html">Book List</a></li>
+  <li><a href="#about">About</a></li>
+  <li><a href="#login">Login/Sign Up</a></li>
+</ul>
 </div>
+<div class="inlineImage">
+<img src="spartan.jpg" alt="Smarty McSpartan"></img>
+</div>
+<form>
+  <input type="text" name="search" placeholder="Search by title, author, ISBN...">
+</form>
+
+<?php
+echo "Hello World!";
+?>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+</div>
+</body>
 </html>
