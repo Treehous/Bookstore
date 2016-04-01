@@ -17,7 +17,6 @@ public class SearchCriteria {
 		this.criteria = criteria;
 		this.type = type;
 		this.order = order;
-		
 	}
 	
 	public String getCriteria(){
