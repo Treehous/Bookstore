@@ -28,28 +28,6 @@
   <input type="text" name="search" placeholder="Search by title, author, ISBN...">
 </form>
 
-<?php
-echo "Hello World!";
-?>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 
 </div>
 </body>

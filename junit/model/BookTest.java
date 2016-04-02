@@ -29,7 +29,6 @@ public class BookTest {
 		assertEquals(b1.getTitle(),"Green Eggs and Ham");
 		assertEquals(b2.getTitle(),"Some dumb book");
 		assertEquals(b3.getTitle(),null);
-		
 	}
 	
 	@Test

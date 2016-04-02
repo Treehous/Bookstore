@@ -7,8 +7,8 @@
 
   <!-- Servlets -->
   <servlet>
-    <servlet-name>IndexServlet</servlet-name>
-    <servlet-class>servlet.IndexServlet</servlet-class>
+    <servlet-name>FrontEndServlet</servlet-name>
+    <servlet-class>servlet.FrontEndServlet</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>AddNumbersServlet</servlet-name>
@@ -31,8 +31,8 @@
 
   <!-- Servlet mappings -->
   <servlet-mapping>
-    <servlet-name>IndexServlet</servlet-name>
-    <url-pattern>/index</url-pattern>
+    <servlet-name>FrontEndServlet</servlet-name>
+    <url-pattern>/Bookstore</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>AddNumbersServlet</servlet-name>
@@ -52,8 +52,4 @@
     <servlet-name>LoginAjaxServlet</servlet-name>
     <url-pattern>/ajax/LoginGuess</url-pattern>
   </servlet-mapping>
-
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-  </welcome-file-list>
 </web-app>
