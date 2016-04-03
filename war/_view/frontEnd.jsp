@@ -4,27 +4,28 @@
 
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="mainstyle.css">
+		<link rel="stylesheet" type="text/css" href="_view/mainstyle.css">
 	</head>
 
 	<body>
+		<form action="${pageContext.servletContext.contextPath}/home" method="post">
+			<div class="main">
+				<img src="logo.gif.png" alt="YCP"></img>
+			
+				<div class="mainNav">
+					<ul class="navBar">
+  						<li><input name="buttonPress" type="submit" value="login" /input></li>
+					</ul>
+				</div>
 
-		<div class="main">
-			<img src="logo.gif.png" alt="YCP"></img>
-
-			<div class="mainNav">
-				<ul class="navBar">
-  					<li><button type="submit" formmethod="post" name="login"</button></li>
-				</ul>
-			</div>
-
-			<form>
-  				<input type="text" name="search" placeholder="Search by title, author, ISBN...">
-			</form>
+				<form>
+  					<input type="text" name="search" placeholder="Search by title, author, ISBN...">
+				</form>
 		
-			<div class="inlineImage">
-				<img src="spartan.jpg" alt="Smarty McSpartan"></img>
+				<div class="inlineImage">
+					<img src="spartan.jpg" alt="Smarty McSpartan"></img>
+				</div>
 			</div>
-		</div>
-</body>
+		</form>
+	</body>
 </html>

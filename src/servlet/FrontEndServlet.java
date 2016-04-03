@@ -24,7 +24,8 @@ public class FrontEndServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		System.out.println("In the FrontEnd Post servlet");
-		if(req.getAttribute("name")=="login"){
+		
+		if(req.getParameter("buttonPress").equals("login")){
 			req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
 		}
 		else{
