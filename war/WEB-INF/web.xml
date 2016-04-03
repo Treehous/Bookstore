@@ -32,7 +32,7 @@
   <!-- Servlet mappings -->
   <servlet-mapping>
     <servlet-name>FrontEndServlet</servlet-name>
-    <url-pattern>/Bookstore</url-pattern>
+    <url-pattern>/home</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>AddNumbersServlet</servlet-name>

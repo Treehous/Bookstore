@@ -16,7 +16,7 @@ public class FrontEndServlet extends HttpServlet {
 		
 		System.out.println("In the FrontEnd Get servlet");
 		
-		req.getRequestDispatcher("/_view/FrontEnd.jsp").forward(req, resp);
+		req.getRequestDispatcher("/_view/frontEnd.jsp").forward(req, resp);
 	}
 	
 	@Override
@@ -24,8 +24,12 @@ public class FrontEndServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		System.out.println("In the FrontEnd Post servlet");
-		
-		req.getRequestDispatcher("/_view/FrontEnd.jsp").forward(req, resp);
+		if(req.getAttribute("name")=="login"){
+			req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
+		}
+		else{
+			req.getRequestDispatcher("/_view/frontEnd.jsp").forward(req, resp);
+		}
 	}
 
 }
