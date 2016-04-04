@@ -7,6 +7,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import src.Book;
+
 public class BookTest {
 	Book b1, b2, b3;
 	@Before

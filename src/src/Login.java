@@ -1,4 +1,4 @@
-package model;
+package src;
 
 public class Login {
 	private String user, pass;

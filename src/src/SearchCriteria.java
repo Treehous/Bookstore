@@ -1,4 +1,4 @@
-package model;
+package src;
 
 public class SearchCriteria {
 	public final static int ASCENDINGORDER = 1;
