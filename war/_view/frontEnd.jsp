@@ -8,24 +8,27 @@
 	</head>
 
 	<body>
-		<form action="${pageContext.servletContext.contextPath}/home" method="post">
-			<div class="main">
-				<img src="logo.gif.png" alt="YCP"></img>
-			
-				<div class="mainNav">
-					<ul class="navBar">
-  						<li><input name="buttonPress" type="submit" value="login" /input></li>
-					</ul>
-				</div>
-
-				<form>
-  					<input type="text" name="search" placeholder="Search by title, author, ISBN...">
-				</form>
+		<table>
+			<tr>
+				<td>
+					<div><img src="res/logo.gif.png" alt="YCP"></img></div>
+					
+					<div>
+						<form action="${pageContext.servletContext.contextPath}/search" method="post">
+							<input type="text" name="search" placeholder="Search by title, author, ISBN...">
+						</form>
+					</div>
+				</td>
+				
+				<td>
+					<form action="${pageContext.servletContext.contextPath}/login" method="post">
+  						<input name="buttonPress" type="submit" value="login" />
+					</form>		
+				</td>
+		</table>
 		
-				<div class="inlineImage">
-					<img src="spartan.jpg" alt="Smarty McSpartan"></img>
-				</div>
-			</div>
-		</form>
+		<div class="inlineImage">
+			<img src="spartan.jpg" alt="Smarty McSpartan"></img>
+		</div>
 	</body>
 </html>
