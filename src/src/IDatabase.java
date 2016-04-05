@@ -4,7 +4,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class CreateDatabase {
+public class IDatabase {
   public static void main(String[] args) {
     Connection connection = null;
     Statement statement = null;
