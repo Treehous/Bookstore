@@ -14,7 +14,7 @@ public class SearchServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		System.out.println("In the Login Get servlet");
+		System.out.println("In the Search Get servlet");
 		
 		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
 	}
@@ -23,7 +23,7 @@ public class SearchServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		System.out.println("In the Login Post servlet");
+		System.out.println("In the Search Post servlet");
 		
 		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
 	}
