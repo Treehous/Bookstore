@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.EnterBookController;
+import database.DatabaseProvider;
+import database.IDatabase;
 import src.Book;
 
 public class EnterBookServlet extends HttpServlet {
@@ -25,34 +27,33 @@ public class EnterBookServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		System.out.println("In the EnterBook Post servlet");
+
 		String error = null;
 		String success = null;
-
-
 
 		String title = req.getParameter("title");
 		String author = req.getParameter("author");
 		String isbn = req.getParameter("isbn");
 
-		ArrayList<String> authors = new ArrayList<String>();
-
 		if(title == null || title.equals("")||
-				author == null||author.equals("")||
-				isbn == null  || isbn.equals("")){
+			author == null||author.equals("")||
+			isbn == null  || isbn.equals("")){
 			error = "Invalid entry";
 		}
 		else{
+			ArrayList<String> authors = new ArrayList<String>();
 			authors.add(author);
-			Book book = new Book(title,authors,isbn,"");
 			EnterBookController enter = new EnterBookController();
 			try {
-				enter.insertBook(book);
-				success = "entered book";
+				enter.insertBook(new Book(title,authors,isbn,""));
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				error = "failed to insert book";
 				e.printStackTrace();
 			}
+		}
+		if(error == null){
+			success = "Successly added \"" + title + "\" into database.";
 		}
 		
 		req.setAttribute("errorMessage",   error);
