@@ -20,6 +20,11 @@
   	<servlet-name>SearchServlet</servlet-name>
   	<servlet-class>servlet.SearchServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+  	<servlet-name>EnterBookServlet</servlet-name>
+  	<servlet-class>servlet.EnterBookServlet</servlet-class>
+  </servlet>
 
   <!-- Servlet mappings -->
   <servlet-mapping>
@@ -35,6 +40,11 @@
   <servlet-mapping>
   	<servlet-name>SearchServlet</servlet-name>
   	<url-pattern>/search</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+  	<servlet-name>EnterBookServlet</servlet-name>
+  	<url-pattern>/enterBook</url-pattern>
   </servlet-mapping>
   
   <!-- AJAX servlets. -->
