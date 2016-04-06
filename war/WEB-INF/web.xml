@@ -61,6 +61,6 @@
   
   <!--  Welcome Files -->
   <welcome-file-list>
-  		<welcome-file>_view/home.html</welcome-file>
+  		<welcome-file>_view/frontEnd.jsp</welcome-file>
   </welcome-file-list>
 </web-app>

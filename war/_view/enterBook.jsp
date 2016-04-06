@@ -38,7 +38,7 @@
 		</c:if>
 		
 		<div class="inlineImage">
-			<img src="spartan.jpg" alt="Smarty McSpartan"></img>
+			<img src="res/spartan.gif" alt="Smarty McSpartan"></img>
 		</div>
 	</body>
 </html>
