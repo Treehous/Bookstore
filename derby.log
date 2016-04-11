@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Sun Apr 10 21:30:27 EDT 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.2.0 - (1582446): instance a816c00e-0154-02f0-f7c7-0000063cb9b8 
+on database directory /home/gbread/git/Bookstore/database/bookstore.db with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+Loaded from file:/home/gbread/Programs/java-project/CS320_Derby/lib/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_74-b02
+user.dir=/home/gbread/git/Bookstore
+os.name=Linux
+os.arch=amd64
+os.version=3.13.0-37-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

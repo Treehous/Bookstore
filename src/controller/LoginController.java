@@ -1,6 +1,6 @@
 package controller;
 
-import model.Login;
+import src.Login;
 
 
 public class LoginController {

@@ -14,8 +14,17 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		System.out.println("In the Login servlet");
+		System.out.println("In the Login Get servlet");
 		
-		req.getRequestDispatcher("/_view/Login.jsp").forward(req, resp);
+		req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		
+		System.out.println("In the Login Post servlet");
+		
+		req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
 	}
 }

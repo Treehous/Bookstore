@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.LoginController;
-import model.Login;
+import src.Login;
 
 public class LoginAjaxServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
