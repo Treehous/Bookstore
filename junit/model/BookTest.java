@@ -43,9 +43,9 @@ public class BookTest {
 	
 	@Test
 	public void getISBNTest(){
-		assertEquals(b1.getISBN(),"9780007180561");
-		assertEquals(b2.getISBN(),"1");
-		assertEquals(b3.getISBN(),null);
+		assertEquals(b1.getIsbn(),"9780007180561");
+		assertEquals(b2.getIsbn(),"1");
+		assertEquals(b3.getIsbn(),null);
 	}
 	 
 	@Test

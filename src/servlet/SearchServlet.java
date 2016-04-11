@@ -31,9 +31,9 @@ public class SearchServlet extends HttpServlet {
 		
 		
 		SearchController con = new SearchController();
-		List<Book> books = con.getBooksByISBN("");
+		List<Book> books = con.getBooksByISBN(req.getParameter("search"));
 		req.setAttribute("books", books);
-		
+		System.out.println("END OF SERVLET");
 		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
 	}
 
