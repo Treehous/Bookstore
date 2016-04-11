@@ -30,11 +30,54 @@ public class IDatabase {
 				@Override
 				public List<Book> query(Connection conn) throws SQLException{
 					ArrayList<Book> books = new ArrayList<Book>();
-						PreparedStatement stmt1 = conn.prepareStatement(
-								"Select book_id FROM books ");
+						PreparedStatement stmt1 = null;
+						PreparedStatement stmt2 = null;
+						PreparedStatement stmt3 = null;
 						
+						stmt1 = conn.prepareStatement(
+								"SELECT * FROM books "+
+									"WHERE isbn=?");
 						
+						stmt2 = conn.prepareStatement(
+								"SELECT author_id FROM authored "
+								+"WHERE book_id=?");
+						
+						stmt3 = conn.prepareStatement(
+								"SELECT author_firstname, author_lastname "
+								+ "FROM authors "
+								+ "WHERE author_id=? ");
+						
+						stmt1.setString(1, isbn);
 						ResultSet set1 = stmt1.executeQuery();
+						
+						int index1 = 1;
+						while(set1.next()){
+							int bookId = set1.getInt(index1++);
+							Book book = new Book();
+							index1 = inflateBook(set1, book, index1);
+							
+							List<Author> authors = new ArrayList<Author>();
+							stmt2.setInt(1, bookId);
+							ResultSet set2 = stmt2.executeQuery();
+							
+							int index2 = 1;
+							while(set2.next()){
+								int authorId = set2.getInt(index2++);
+								
+								stmt3.setInt(1, authorId);
+								ResultSet set3 = stmt3.executeQuery();
+								
+								Author author = new Author();
+								if(set3.next()){
+									inflateAuthor(set3,author,1);
+								}
+								
+								authors.add(author);
+							}
+							
+							book.setAuthor(authors);
+							books.add(book);
+						}
 					return books;
 				}
 			});
@@ -75,7 +118,7 @@ public class IDatabase {
 
 					stmt2.executeBatch();
 
-					//TODO: get author id and book it then fill authored table
+					//TODO: get author id and book id then fill authored table
 					stmt3 = conn.prepareStatement(
 							""
 							);
@@ -89,13 +132,18 @@ public class IDatabase {
 			return false;
 		}
 	}
-	private Author inflateAuthor(ResultSet set, int index) throws SQLException{
-		return new Author(set.getString(index++),set.getString(index++));
+	
+	private int inflateAuthor(ResultSet set, Author author, int index) throws SQLException{
+		String last = set.getString(index++);
+		String first = set.getString(index++);
+		author.setAuthorName(first, last);
+		return index;
 	}
 	
-	private void inflateBook(ResultSet set, Book book, int index) throws SQLException{
+	private int inflateBook(ResultSet set, Book book, int index) throws SQLException{
 		book.setTitle(set.getString(index++));
 		book.setISBN(set.getString(index++));
+		return index;
 	}
 	
 	private Connection connect() {
@@ -125,7 +173,6 @@ public class IDatabase {
 					if (e.getSQLState() != null && e.getSQLState().equals("41000")) {
 						times++;
 					} else {
-						// Some other kind of SQLException
 						throw e;
 					}
 				}

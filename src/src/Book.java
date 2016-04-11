@@ -8,6 +8,8 @@ public final class Book {
 	private List<Author> authors = new ArrayList<Author>();
 	private String isbn;
 	private String description;
+	
+	public Book(){}
 
 	public Book(String title, List<String> authors, String isbn, String description){
 		this.title = title;

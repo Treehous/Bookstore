@@ -3,11 +3,12 @@ package src;
 public class Author {
 	private AuthorName name;
 	
+	public Author(){}
 	public Author(String name){
 		this.name = this.parseAuthorName(name);
 	}
 	
-	public Author(String first, String last){
+	public void setAuthorName(String first, String last){
 		this.name = new AuthorName(first, last);
 	}
 	

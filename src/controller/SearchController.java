@@ -12,13 +12,17 @@ public class SearchController {
 	private BookstoreModel model;
 	private IDatabase database;
 	
-	public SearchController() throws Exception{
+	public SearchController() {
 		this.model = new BookstoreModel();
-		this.database = DatabaseProvider.getDatabase();
 	}
 	
 	public List<Book> getBooksByAuthor(List<Author> authors){
+		this.database = DatabaseProvider.getDatabase();
 		
 		return null;
+	} 
+	public List<Book> getBooksByISBN(String isbn){
+		this.database = DatabaseProvider.getDatabase();
+		return database.getBookByISBN(isbn);
 	}
 }

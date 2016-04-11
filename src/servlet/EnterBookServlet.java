@@ -45,13 +45,12 @@ public class EnterBookServlet extends HttpServlet {
 			ArrayList<String> authors = new ArrayList<String>();
 			authors.add(author);
 			EnterBookController enter = new EnterBookController();
-			try {
-				enter.insertBook(new Book(title,authors,isbn,""));
-			} catch (Exception e) {
-				error = "failed to insert book";
-				e.printStackTrace();
+				
+			if(!enter.insertBook(new Book(title,authors,isbn,""))){
+				error = "Failed to insert book into database.";
 			}
 		}
+			
 		if(error == null){
 			success = "Successly added \"" + title + "\" into database.";
 		}
