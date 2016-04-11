@@ -7,6 +7,10 @@ public class Author {
 		this.name = this.parseAuthorName(name);
 	}
 	
+	public Author(String first, String last){
+		this.name = new AuthorName(first, last);
+	}
+	
 	public String getAuthorsLastName(){
 		return this.name.getLastName();
 	}

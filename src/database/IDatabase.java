@@ -3,27 +3,99 @@ package database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-import src.Book;
+import src.*;
 
 public class IDatabase {
 	static{
 		try{
 			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
 		}catch(Exception e){
-			throw new IllegalStateException("Could not load to driver");
+			throw new IllegalStateException("Could not load the driver");
 		}
 	}
 	private static final int TIMEOUT = 10;
-	
+
 	private interface Query<ReturnType>{
 		public ReturnType query(Connection conn) throws SQLException;
 	}
+	public List<Book> getBookByISBN(String isbn){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					ArrayList<Book> books = new ArrayList<Book>();
+						PreparedStatement stmt1 = conn.prepareStatement(
+								"Select book_id FROM books ");
+						
+						
+						ResultSet set1 = stmt1.executeQuery();
+					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
 	
-	private interface Insert<Type>{
-		public Type insert(Connection conn) throws SQLException;
+	public boolean insertBookIntoDatabase(Book book) {
+		try{
+			return doQueryLoop(new Query<Boolean>(){
+				@Override
+				public Boolean query(Connection conn) throws SQLException{
+					PreparedStatement stmt1 = null;
+					PreparedStatement stmt2 = null;
+					PreparedStatement stmt3 = null;
+
+					//TODO: Book check = bookByISBN(string isbn);
+					stmt1 = conn.prepareStatement(
+							"INSERT INTO books(title, isbn)" +
+									"VALUES (?,?)"
+							);
+					stmt1.setString(1,book.getTitle());
+					stmt1.setString(2, book.getISBN());
+					stmt1.executeUpdate();
+
+					//TODO: check for authors already added
+					stmt2 = conn.prepareStatement(
+							"INSERT INTO authors (authors_lastname, authors_firstname)" +
+									"VALUES (?,?)"
+							);
+					for(Author a: book.getAuthors()){
+						stmt2.setString(1, a.getAuthorsLastName());
+						stmt2.setString(2, a.getAuthorsFirstName());
+						stmt2.addBatch();
+					}
+
+					stmt2.executeBatch();
+
+					//TODO: get author id and book it then fill authored table
+					stmt3 = conn.prepareStatement(
+							""
+							);
+
+					stmt3.executeUpdate();
+					return true;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+			return false;
+		}
+	}
+	private Author inflateAuthor(ResultSet set, int index) throws SQLException{
+		return new Author(set.getString(index++),set.getString(index++));
+	}
+	
+	private void inflateBook(ResultSet set, Book book, int index) throws SQLException{
+		book.setTitle(set.getString(index++));
+		book.setISBN(set.getString(index++));
 	}
 	
 	private Connection connect() {
@@ -37,10 +109,35 @@ public class IDatabase {
 		return conn;
 	}
 
-	public void insertBookIntoDatabase(Book book) throws SQLException{
-		Connection con = this.connect();
+	private<ReturnType> ReturnType doQueryLoop(Query<ReturnType> query) throws SQLException{
+		Connection conn = connect();
 
-		DBUtil.closeQuietly(con);
+		ReturnType ret = null;
+		int times = 0;
+		boolean done = false;
+		try{
+			while(!done && times < TIMEOUT){
+				try{
+					ret = query.query(conn);
+					conn.commit();
+					done = true;
+				}catch(SQLException e){
+					if (e.getSQLState() != null && e.getSQLState().equals("41000")) {
+						times++;
+					} else {
+						// Some other kind of SQLException
+						throw e;
+					}
+				}
+			}
+
+			if (!done) {
+				throw new SQLException("Query Failed, TIMEOUT. ");
+			}
+			return ret;
+		}finally{
+			DBUtil.closeQuietly(conn);
+		}
 	}
 
 	private boolean createTables(Connection conn){
@@ -57,7 +154,7 @@ public class IDatabase {
 							"	author_firstname varchar(40)" +
 							")"
 					);
-			stmt1.executeUpdate();
+			stmt1.execute();
 
 			stmt2 = conn.prepareStatement(
 					"CREATE TABLE books (" +
@@ -67,17 +164,17 @@ public class IDatabase {
 							"	isbn varchar(20)" +
 							")"
 					);
-			stmt2.executeUpdate();
-			
+			stmt2.execute();
+
 			stmt3 = conn.prepareStatement(
 					"CREATE TABLE authored( "+
 							"  author_id integer,"+
 							"  book_id integer"+
 							")"
 					);
-			
-			stmt3.executeUpdate();
-			
+
+			stmt3.execute();
+
 			stmt4 = conn.prepareStatement(
 					"CREATE TABLE accounts ("+
 							" user_id integer primary key "+
@@ -86,9 +183,11 @@ public class IDatabase {
 							" password varchar(20)"+
 							")"	
 					);
-			stmt4.executeUpdate();
+			stmt4.execute();
+
+			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return false;
 		}finally{
 			DBUtil.closeQuietly(stmt1);
@@ -99,57 +198,59 @@ public class IDatabase {
 		return true;
 	}
 
-	private boolean dropTable(Connection conn){
-		System.out.print("Enter name of table to be dropped: ");
-		Scanner in = new Scanner(System.in);
-		String table = in.nextLine();
-		in.close();
-		
+	private boolean dropTable(Connection conn, String table){
 		PreparedStatement stmt1 = null;
-		
+
 		try{
 			stmt1 = conn.prepareStatement(
 					"DROP TABLE "+ table + " ");
-			
+
 			stmt1.executeUpdate();
+			conn.commit();
 		}catch(SQLException e){
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return false;
 		}finally{
 			DBUtil.closeQuietly(stmt1);
 		}
 		return true;
 	}
+
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		System.out.println("----Loading Database Driver----");
+		System.out.println("----Loading Database Driver---- ");
 		IDatabase db = DatabaseProvider.getDatabase();
 
-		System.out.println("----Connecting to Database----");
+		System.out.println("----Connecting to Database---- ");
 		Connection conn = db.connect();
 
 		System.out.println("(C)reate table or (D)rop tables: ");
 		Scanner in = new Scanner(System.in);
 		if(in.nextLine().toUpperCase().equals("C")){
-			System.out.println("----Creating Tables----");
+			System.out.println("----Creating Tables---- ");
 			if(db.createTables(conn)){
-				System.out.println("----Successfully Created Tables----");
+				System.out.println("----Successfully Created Tables---- ");
 			}
 
 			else{
-				System.out.println("----Failed to Create Tables----");
+				System.out.println("----Failed to Create Tables---- ");
 			}
 		}
 		else{
 			boolean done = false;
 			while(!done){
-				System.out.println("----Preparing to Drop Tables----");
-				if(db.dropTable(conn)){
-					System.out.println("----Successfully Dropped Table----");
+				System.out.print("Enter name of table to be dropped: ");
+				in = new Scanner(System.in);
+				String table = in.nextLine();
+
+				System.out.println("----Preparing to Drop :"+table.toUpperCase()+"---- ");
+				if(db.dropTable(conn,table)){
+					System.out.println("----Successfully Dropped :"+table.toUpperCase()+"---- ");
 				}
 				else{
-					System.out.println("----Failed To Drop Table----");
+					System.out.println("----Failed To Drop Table---- ");
 				}
-				
+
 				in = new Scanner(System.in);
 				System.out.println("Drop another table? (Y/n): ");
 				if(in.nextLine().toUpperCase().equals("N"))
