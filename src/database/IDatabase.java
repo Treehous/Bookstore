@@ -44,7 +44,7 @@ public class IDatabase {
 										+"WHERE book_id=?");
 
 						stmt3 = conn.prepareStatement(
-								"SELECT author_firstname, author_lastname "
+								"SELECT author_lastname, author_firstname "
 										+ "FROM authors "
 										+ "WHERE author_id=? ");
 
