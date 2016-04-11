@@ -80,6 +80,11 @@
 					<div><img src="res/logo.gif.png" alt="YCP"></img></div>
 					
 					<div>
+						<form action="${pageContext.servletContext.contextPath}/search" method="post">
+							<input type="text" name="search" placeholder="Search by title, author, ISBN...">
+						</form>
+					</div>
+					<div>
 						<tr>
 							<td class="bookColHeading">Title</td>
        						<td class="isbnColHeading">ISBN</td>
