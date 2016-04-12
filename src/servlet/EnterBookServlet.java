@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.EnterBookController;
-import database.DatabaseProvider;
-import database.IDatabase;
 import src.Book;
 
 public class EnterBookServlet extends HttpServlet {
@@ -19,16 +17,13 @@ public class EnterBookServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In the EnterBook Get servlet");
-
+		
 		req.getRequestDispatcher("/_view/enterBook.jsp").forward(req, resp);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In the EnterBook Post servlet");
-
 		String error = null;
 		String success = null;
 

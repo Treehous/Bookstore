@@ -55,7 +55,7 @@ public class IDatabase {
 		}
 	}
 	
-	public List<Book> queryBookByISBN(String isbn){
+	public List<Book> queryForBooksByISBN(String isbn){
 		try{
 			return doQueryLoop(new Query<List<Book>>(){
 				@Override
@@ -180,7 +180,7 @@ public class IDatabase {
 		
 		try{
 			stmt1 = conn.prepareStatement(
-					"SELECT author_id FROM authored"
+					"SELECT author_id FROM authored "
 					+ "WHERE book_id=?");
 			stmt1.setInt(1, bookId);
 			set1 = stmt1.executeQuery();
@@ -205,8 +205,8 @@ public class IDatabase {
 		
 		try{
 			stmt1 = conn.prepareStatement(
-					"SELECT author_lastname, author_firstname FROM authors"
-					+ "WHERE author_id = ?");
+					"SELECT author_lastname, author_firstname FROM authors "
+					+ "WHERE author_id=?");
 			stmt1.setInt(1, authorId);
 			set1 = stmt1.executeQuery();
 			
