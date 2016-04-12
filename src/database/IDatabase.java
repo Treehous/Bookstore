@@ -19,70 +19,61 @@ public class IDatabase {
 			throw new IllegalStateException("Could not load the driver");
 		}
 	}
+	
 	private static final int TIMEOUT = 10;
 
 	private interface Query<ReturnType>{
 		public ReturnType query(Connection conn) throws SQLException;
 	}
-	public List<Book> getBookByISBN(String isbn){
+
+	/*
+	 * ----------------MAIN QUERY METHODS------------------------------------------------------------
+	 */
+	public List<Book> queryForAllBooks(){
 		try{
 			return doQueryLoop(new Query<List<Book>>(){
 				@Override
 				public List<Book> query(Connection conn) throws SQLException{
-					ArrayList<Book> books = new ArrayList<Book>();
+					List<Book> books = null;
+					PreparedStatement stmt = null;
+					ResultSet set = null;
 					try{
-						PreparedStatement stmt1 = null;
-						PreparedStatement stmt2 = null;
-						PreparedStatement stmt3 = null;
-
-						stmt1 = conn.prepareStatement(
-								"SELECT * FROM books "+
-								"WHERE isbn=?");
-
-						stmt2 = conn.prepareStatement(
-								"SELECT author_id FROM authored "
-										+"WHERE book_id=?");
-
-						stmt3 = conn.prepareStatement(
-								"SELECT author_lastname, author_firstname "
-										+ "FROM authors "
-										+ "WHERE author_id=? ");
-
-						stmt1.setString(1, isbn);
-						ResultSet set1 = stmt1.executeQuery();
-
-
-						while(set1.next()){
-							int index1 = 1;
-							int bookId = set1.getInt(index1++);
-							Book book = new Book();
-							index1 = inflateBook(set1, book, index1);
-
-							List<Author> authors = new ArrayList<Author>();
-							stmt2.setInt(1, bookId);
-							ResultSet set2 = stmt2.executeQuery();
-
-
-							while(set2.next()){
-								int index2 = 1;
-								int authorId = set2.getInt(index2++);
-
-								stmt3.setInt(1, authorId);
-								ResultSet set3 = stmt3.executeQuery();
-
-								Author author = new Author();
-								if(set3.next()){
-									inflateAuthor(set3,author,1);
-								}
-
-								authors.add(author);
-							}
-
-							book.setAuthor(authors);
-							books.add(book);
-						}
+						stmt = conn.prepareStatement(
+								"Select * FROM books" );
+						set = stmt.executeQuery();
+						books = getAllBooksFromResultSet(conn,set);
 					}finally{
-
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+	
+	public List<Book> queryBookByISBN(String isbn){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = null;
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					
+					try{
+						stmt = conn.prepareStatement(
+								"SELECT * FROM books "
+								+ "WHERE isbn=?" );
+						stmt.setString(1, isbn);
+						set = stmt.executeQuery();
+						books = getAllBooksFromResultSet(conn,set);
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
 					}
 					return books;
 				}
@@ -98,122 +89,20 @@ public class IDatabase {
 			return doQueryLoop(new Query<Boolean>(){
 				@Override
 				public Boolean query(Connection conn) throws SQLException{
-					PreparedStatement stmt1 = null;
-					PreparedStatement stmt2 = null;
-					PreparedStatement stmt3 = null;
-					PreparedStatement stmt4 = null;
-					PreparedStatement stmt5 = null;
-					PreparedStatement stmt6 = null;
-					PreparedStatement stmt7 = null;
+					boolean success = true;
+					int[] authorIds = new int[book.getAuthors().size()];
+					int index = 0;
 
-					ResultSet set1 = null;
-					ResultSet set3 = null;
-					ResultSet set4 = null;
-					ResultSet set6 = null;
+					for(Author a: book.getAuthors()){
+						authorIds[index++] = insertAuthor(conn, a);
+					}
 
-					boolean success = false;
+					int bookId = insertBook(conn, book);
 
-					try{
-						//TODO: change to allow for multiple authors
-						stmt1 = conn.prepareStatement(
-								"SELECT author_id FROM authors "
-										+ "WHERE author_firstname = ? "
-										+ "AND author_lastname = ? "
-								);
-						stmt1.setString(1, book.getAuthors().get(0).getAuthorsFirstName());
-						stmt1.setString(2, book.getAuthors().get(0).getAuthorsLastName());
-						set1 = stmt1.executeQuery();
-
-						int authorId = -1;
-						if(set1.next()){
-							authorId = set1.getInt(1);
+					for(int authorId: authorIds){
+						if(!insertAuthored(conn,authorId,bookId)){
+							success = false;
 						}
-						
-						if(authorId <= 0){
-							stmt2 = conn.prepareStatement(
-									"INSERT INTO authors (author_lastname, author_firstname) "
-											+ "VALUES (?,?)");
-							stmt2.setString(1, book.getAuthors().get(0).getAuthorsLastName());
-							stmt2.setString(2, book.getAuthors().get(0).getAuthorsFirstName());
-							stmt2.executeUpdate();
-							
-							stmt3 = conn.prepareStatement(
-									"SELECT author_id FROM authors "
-											+ "WHERE author_firstname = ? "
-											+ "AND author_lastname = ? "
-									);
-							stmt3.setString(1, book.getAuthors().get(0).getAuthorsFirstName());
-							stmt3.setString(2, book.getAuthors().get(0).getAuthorsLastName());
-							set3 = stmt3.executeQuery();
-							
-							//TODO: check  set3
-							if(set3.next()){
-								authorId = set3.getInt(1);
-							}
-						}
-						
-						stmt4 = conn.prepareStatement(
-								"SELECT book_id FROM books "
-										+ "WHERE title = ? "
-										+ "AND isbn = ? "
-								);
-						stmt4.setString(1, book.getTitle());
-						stmt4.setString(2, book.getIsbn());
-						set4 = stmt4.executeQuery();
-						
-						int bookId = -1;
-						if(set4.next()){
-							bookId = set4.getInt(1);
-						}
-						
-						if(bookId <= 0){
-							stmt5 = conn.prepareStatement(
-									"INSERT INTO books (title, isbn) "+
-											"VALUES (?,?) ");
-							
-							stmt5.setString(1, book.getTitle());
-							stmt5.setString(2, book.getIsbn());
-							stmt5.executeUpdate();
-							
-							stmt6 = conn.prepareStatement(
-									"SELECT book_id FROM books "
-											+ "WHERE title = ? "
-											+ "AND isbn = ? ");
-							
-							stmt6.setString(1, book.getTitle());
-							stmt6.setString(2, book.getIsbn());
-							set6 = stmt6.executeQuery();
-							
-							if(set6.next()){
-								bookId = set6.getInt(1);
-							}
-						}
-
-						//TODO: adjust for multiple authors
-						if(bookId > 0 && authorId > 0){
-							stmt7 = conn.prepareStatement(
-									"INSERT INTO authored(author_id, book_id) "
-											+ "VALUES (?,?) ");
-							
-							stmt7.setInt(1, authorId);
-							stmt7.setInt(2, bookId);
-							stmt7.executeUpdate();
-						}
-						
-						success = true;
-					}finally{
-						DBUtil.closeQuietly(set1);
-						DBUtil.closeQuietly(set3);
-						DBUtil.closeQuietly(set4);
-						DBUtil.closeQuietly(set6);
-
-						DBUtil.closeQuietly(stmt1);
-						DBUtil.closeQuietly(stmt2);
-						DBUtil.closeQuietly(stmt3);
-						DBUtil.closeQuietly(stmt4);
-						DBUtil.closeQuietly(stmt5);
-						DBUtil.closeQuietly(stmt6);
-						DBUtil.closeQuietly(stmt7);
 					}
 					return success;
 				}
@@ -223,20 +112,9 @@ public class IDatabase {
 			return false;
 		}
 	}
-
-	private int inflateAuthor(ResultSet set, Author author, int index) throws SQLException{
-		String last = set.getString(index++);
-		String first = set.getString(index++);
-		author.setAuthorName(first, last);
-		return index;
-	}
-
-	private int inflateBook(ResultSet set, Book book, int index) throws SQLException{
-		book.setTitle(set.getString(index++));
-		book.setISBN(set.getString(index++));
-		return index;
-	}
-
+	/*
+	 * ------------------------------------CORE DATABASE FUNCTIONALITY METHODS------------------------------------------------------------
+	 */
 	private Connection connect() {
 		Connection conn = null;
 		try{
@@ -277,11 +155,221 @@ public class IDatabase {
 			DBUtil.closeQuietly(conn);
 		}
 	}
+	/*
+	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
+	 */
+	private List<Book> getAllBooksFromResultSet(Connection conn,ResultSet set) throws SQLException{
+		ArrayList<Book> books = new ArrayList<Book>();
+		if(set != null){
+			while(set.next()){
+				Book book = new Book();
+				int index = 1;
+				int bookId = set.getInt(index++);
+				inflateBook(set,book,index);
+				book.setAuthor(getAuthorsFromBookId(conn,bookId));
+				books.add(book);
+			}
+		}
+		return books;
+	}
+	
+	private List<Author> getAuthorsFromBookId(Connection conn, int bookId) throws SQLException{
+		List<Author> authors = new ArrayList<Author>();
+		PreparedStatement stmt1 = null;
+		ResultSet set1 = null;
+		
+		try{
+			stmt1 = conn.prepareStatement(
+					"SELECT author_id FROM authored"
+					+ "WHERE book_id=?");
+			stmt1.setInt(1, bookId);
+			set1 = stmt1.executeQuery();
+			
+			while(set1.next()){
+				Author author = getAuthorFromAuthorId(conn,set1.getInt(1));
+				if(author != null){
+					authors.add(author);
+				}
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt1);
+			DBUtil.closeQuietly(set1);
+		}
+		return authors;
+	}
+	
+	private Author getAuthorFromAuthorId(Connection conn, int authorId) throws SQLException{
+		Author author = null;
+		PreparedStatement stmt1 = null;
+		ResultSet set1 = null;
+		
+		try{
+			stmt1 = conn.prepareStatement(
+					"SELECT author_lastname, author_firstname FROM authors"
+					+ "WHERE author_id = ?");
+			stmt1.setInt(1, authorId);
+			set1 = stmt1.executeQuery();
+			
+			if(set1.next()){
+				author = new Author();
+				inflateAuthor(set1,author,1);
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt1);
+			DBUtil.closeQuietly(set1);
+		}
+		return author;
+	}
+	
+	private int insertAuthor(Connection conn, Author author) throws SQLException{
+		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
+		PreparedStatement stmt3 = null;
 
+		ResultSet set1 = null;
+		ResultSet set3 = null;
+
+		int authorId = -1;
+		try{
+			//TODO: change to allow for multiple authors
+			stmt1 = conn.prepareStatement(
+					"SELECT author_id FROM authors "
+							+ "WHERE author_firstname = ? "
+							+ "AND author_lastname = ? "
+					);
+			stmt1.setString(1, author.getAuthorsFirstName());
+			stmt1.setString(2, author.getAuthorsLastName());
+			set1 = stmt1.executeQuery();
+
+			if(set1.next()){
+				authorId = set1.getInt(1);
+			}
+
+			if(authorId <= 0){
+				stmt2 = conn.prepareStatement(
+						"INSERT INTO authors (author_lastname, author_firstname) "
+								+ "VALUES (?,?)");
+				stmt2.setString(1, author.getAuthorsLastName());
+				stmt2.setString(2, author.getAuthorsFirstName());
+				stmt2.executeUpdate();
+
+				stmt3 = conn.prepareStatement(
+						"SELECT author_id FROM authors "
+								+ "WHERE author_firstname = ? "
+								+ "AND author_lastname = ? "
+						);
+				stmt3.setString(1, author.getAuthorsFirstName());
+				stmt3.setString(2, author.getAuthorsLastName());
+				set3 = stmt3.executeQuery();
+
+				//TODO: check  set3
+				if(set3.next()){
+					authorId = set3.getInt(1);
+				}
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt1);
+			DBUtil.closeQuietly(stmt2);
+			DBUtil.closeQuietly(stmt3);
+			DBUtil.closeQuietly(set1);
+			DBUtil.closeQuietly(set3);
+		}
+		return authorId;
+	}
+
+	private int insertBook(Connection conn, Book book) throws SQLException{
+		PreparedStatement stmt4 = null;
+		PreparedStatement stmt5 = null;
+		PreparedStatement stmt6 = null;
+
+		ResultSet set4 = null;
+		ResultSet set6 = null;
+
+		int bookId = -1;
+		try{
+			stmt4 = conn.prepareStatement(
+					"SELECT book_id FROM books "
+							+ "WHERE title = ? "
+							+ "AND isbn = ? "
+					);
+			stmt4.setString(1, book.getTitle());
+			stmt4.setString(2, book.getIsbn());
+			set4 = stmt4.executeQuery();
+
+			if(set4.next()){
+				bookId = set4.getInt(1);
+			}
+
+			if(bookId <= 0){
+				stmt5 = conn.prepareStatement(
+						"INSERT INTO books (title, isbn) "+
+						"VALUES (?,?) ");
+
+				stmt5.setString(1, book.getTitle());
+				stmt5.setString(2, book.getIsbn());
+				stmt5.executeUpdate();
+
+				stmt6 = conn.prepareStatement(
+						"SELECT book_id FROM books "
+								+ "WHERE title = ? "
+								+ "AND isbn = ? ");
+
+				stmt6.setString(1, book.getTitle());
+				stmt6.setString(2, book.getIsbn());
+				set6 = stmt6.executeQuery();
+
+				if(set6.next()){
+					bookId = set6.getInt(1);
+				}
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt4);
+			DBUtil.closeQuietly(stmt5);
+			DBUtil.closeQuietly(stmt6);
+
+			DBUtil.closeQuietly(set4);
+			DBUtil.closeQuietly(set6);
+		}
+		return bookId;
+	}
+
+	private boolean insertAuthored(Connection conn, int authorId, int bookId) throws SQLException{
+		PreparedStatement stmt7 = null;
+		boolean success = false;
+		
+		try{
+			if(authorId > 0 && bookId > 0){
+				stmt7 = conn.prepareStatement(
+						"INSERT INTO authored(author_id, book_id) "
+								+ "VALUES (?,?) ");
+
+				stmt7.setInt(1, authorId);
+				stmt7.setInt(2, bookId);
+				stmt7.executeUpdate();
+
+				success = true;
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt7);
+		}
+		return success;
+	}
+	
+	private int inflateAuthor(ResultSet set, Author author, int index) throws SQLException{
+		String last = set.getString(index++);
+		String first = set.getString(index++);
+		author.setAuthorName(first, last);
+		return index;
+	}
+
+	private int inflateBook(ResultSet set, Book book, int index) throws SQLException{
+		book.setTitle(set.getString(index++));
+		book.setISBN(set.getString(index++));
+		return index;
+	}
 	/*
 	 * --------------------------STATIC METHODS FOR MODIFING THE DATABASE OUTSIDE OF THE WEB APP------------------------------------
 	 */
-	
 	private boolean createTables(Connection conn){
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;

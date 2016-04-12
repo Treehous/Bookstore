@@ -23,6 +23,6 @@ public class SearchController {
 	} 
 	public List<Book> getBooksByISBN(String isbn){
 		this.database = DatabaseProvider.getDatabase();
-		return database.getBookByISBN(isbn);
+		return database.queryBookByISBN(isbn);
 	}
 }
