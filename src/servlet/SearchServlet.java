@@ -18,8 +18,10 @@ public class SearchServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		System.out.println("In the Search Get servlet");
+		SearchController search = new SearchController();
+		List<Book> books = search.getAllBooks();
 		
+		req.setAttribute("books", books);
 		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
 	}
 	
@@ -27,13 +29,10 @@ public class SearchServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		System.out.println("In the Search Post servlet");
+		SearchController search = new SearchController();
+		List<Book> books = search.getBooksByISBN(req.getParameter("search"));
 		
-		
-		SearchController con = new SearchController();
-		List<Book> books = con.getBooksByISBN("");
 		req.setAttribute("books", books);
-		
 		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
 	}
 

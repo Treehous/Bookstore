@@ -4,8 +4,8 @@ public class Author {
 	private AuthorName name;
 	
 	public Author(){}
-	public Author(String name){
-		this.name = this.parseAuthorName(name);
+	public Author(String fullName){
+		this.name = this.parseAuthorName(fullName);
 	}
 	
 	public void setAuthorName(String first, String last){
