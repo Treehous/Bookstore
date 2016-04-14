@@ -1,3 +1,4 @@
+//Not in use
 package servlet.ajax;
 
 import java.io.IOException;

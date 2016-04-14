@@ -31,8 +31,17 @@ public final class Book {
 	public final List<Author> getAuthors(){
 		return this.authors;
 	}
+	
+	//temp function to adapt for .jsp
+	public String getAuthorslastname(){
+		return this.authors.get(0).getAuthorsLastName();
+	}
+	//temp function to adapt for .jsp
+	public String getAuthorsfirstname(){
+		return this.authors.get(0).getAuthorsFirstName();
+	}
 
-	public String getISBN(){
+	public String getIsbn(){
 		return this.isbn;
 	}
 
