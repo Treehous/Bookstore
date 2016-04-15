@@ -200,49 +200,6 @@ public class IDatabase {
 		}
 	}
 	/*
-	 * ------------------------------------CORE DATABASE FUNCTIONALITY METHODS------------------------------------------------------------
-	 */
-	private Connection connect() {
-		Connection conn = null;
-		try{
-			conn =  DriverManager.getConnection("jdbc:derby:database/bookstore.db;create=true");	
-			conn.setAutoCommit(false);
-		} catch(SQLException e){
-			System.out.println(e.getSQLState());
-		}
-		return conn;
-	}
-
-	private<ReturnType> ReturnType doQueryLoop(Query<ReturnType> query) throws SQLException{
-		Connection conn = connect();
-
-		ReturnType ret = null;
-		int times = 0;
-		boolean done = false;
-		try{
-			while(!done && times < TIMEOUT){
-				try{
-					ret = query.query(conn);
-					conn.commit();
-					done = true;
-				}catch(SQLException e){
-					if (e.getSQLState() != null && e.getSQLState().equals("41000")) {
-						times++;
-					} else {
-						throw e;
-					}
-				}
-			}
-
-			if (!done) {
-				throw new SQLException("Query Failed, TIMEOUT. ");
-			}
-			return ret;
-		}finally{
-			DBUtil.closeQuietly(conn);
-		}
-	}
-	/*
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
 	
@@ -469,6 +426,52 @@ public class IDatabase {
 		book.setISBN(set.getString(index++));
 		return index;
 	}
+	
+	/*
+	 * ------------------------------------CORE DATABASE FUNCTIONALITY METHODS------------------------------------------------------------
+	 */
+	
+	private Connection connect() {
+		Connection conn = null;
+		try{
+			conn =  DriverManager.getConnection("jdbc:derby:../database/bookstore.db;create=true");	
+			conn.setAutoCommit(false);
+		} catch(SQLException e){
+			System.out.println(e.getSQLState());
+		}
+		return conn;
+	}
+
+	private<ReturnType> ReturnType doQueryLoop(Query<ReturnType> query) throws SQLException{
+		Connection conn = connect();
+
+		ReturnType ret = null;
+		int times = 0;
+		boolean done = false;
+		try{
+			while(!done && times < TIMEOUT){
+				try{
+					ret = query.query(conn);
+					conn.commit();
+					done = true;
+				}catch(SQLException e){
+					if (e.getSQLState() != null && e.getSQLState().equals("41000")) {
+						times++;
+					} else {
+						throw e;
+					}
+				}
+			}
+
+			if (!done) {
+				throw new SQLException("Query Failed, TIMEOUT. ");
+			}
+			return ret;
+		}finally{
+			DBUtil.closeQuietly(conn);
+		}
+	}
+	
 	/*
 	 * --------------------------STATIC METHODS FOR MODIFING THE DATABASE OUTSIDE OF THE WEB APP------------------------------------
 	 */
@@ -525,7 +528,8 @@ public class IDatabase {
 			stmt5 = conn.prepareStatement(
 					"CREATE TABLE books_for_sale_by_user ("
 							+ " user_id integer, "
-							+ " book_id integer)");
+							+ " book_id integer, "
+							+ " book_price varchar(6))");
 			stmt5.execute();
 
 			conn.commit();
