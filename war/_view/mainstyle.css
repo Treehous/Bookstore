@@ -110,3 +110,68 @@ input[type=text] {
 input[type=text]:focus {
     border: 3px solid #555;
 }	
+
+.error {
+				color: red;
+				font-weight: bold;				
+			}
+			
+			td.label {
+				text-align: right;
+			}
+			
+			td.book {
+				text-align: center;
+				color: blue;
+				font-weight: bold;
+			}
+			
+			td.bookColHeading {
+				text-align: center;
+				font-weight: bold;
+				max-width: 400px;
+			}
+			
+			td.isbnColHeading {
+				text-align: center;
+				font-weight: bold;
+				max-width: 200px;
+				padding-left: 20px;
+			}
+			
+			td.nameColHeading {
+				text-align: center;
+				font-weight: bold;
+				max-width: 300px;
+				padding-left: 20px;
+			}
+			
+			tr.bookRow {
+				text-align: left;
+				color: blue;
+				font-weight: bold;
+			}
+			
+			td.bookCol {
+				text-align: left;
+				color: blue;
+				font-weight: bold;
+				max-width: 400px;
+				padding-left: 20px;				
+			}
+			
+			td.isbnCol {
+				text-align: left;
+				color: blue;
+				font-weight: bold;
+				max-width: 200px;
+				padding-left: 20px;
+			}
+			
+			td.nameCol {
+				text-align: left;
+				color: blue;
+				font-weight: bold;
+				max-width: 400px;
+				padding-left: 20px;				
+			}

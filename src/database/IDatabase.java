@@ -39,7 +39,7 @@ public class IDatabase {
 					ResultSet set = null;
 					try{
 						stmt = conn.prepareStatement(
-								"Select * FROM books" );
+								"SELECT * FROM books" );
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
 					}finally{
@@ -47,6 +47,93 @@ public class IDatabase {
 						DBUtil.closeQuietly(set);
 					}
 					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+	
+	public List<Book> queryForBooksByTitle(String title){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = null;
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					try{
+						stmt = conn.prepareStatement(
+								"SELECT * FROM books "
+								+ " WHERE title = ?" );
+						stmt.setString(1, title);
+						set = stmt.executeQuery();
+						books = getAllBooksFromResultSet(conn,set);
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+	
+	public List<Book> queryForBooksByAuthorLastName(String lastname){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = new ArrayList<Book>();
+					PreparedStatement stmt = null;
+					PreparedStatement stmt1 = null;
+					PreparedStatement stmt2 = null;
+					ResultSet set = null;
+					ResultSet set1 = null;
+					ResultSet set2 = null;
+					try{
+						stmt = conn.prepareStatement(
+								"Select author_id FROM authors "
+								+ " WHERE author_lastname=?" );
+						stmt.setString(1, lastname);
+						set = stmt.executeQuery();
+						
+						if(set.next()){
+							int authorId = set.getInt(1);
+							stmt1 = conn.prepareStatement(
+									"SELECT book_id FROM authored "
+									+" WHERE author_id=?");
+							stmt1.setInt(1, authorId);
+							set1 = stmt1.executeQuery();
+							
+							stmt2 = conn.prepareStatement(
+									"SELECT * FROM books "
+									+ " WHERE book_id = ?");
+							
+							while(set1.next()){
+								stmt2.setInt(1, set1.getInt(1));
+								set2 = stmt2.executeQuery();
+								books.addAll(getAllBooksFromResultSet(conn,set2));
+							}	
+						}
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(stmt1);
+						DBUtil.closeQuietly(stmt2);
+						DBUtil.closeQuietly(set);
+						DBUtil.closeQuietly(set1);
+						DBUtil.closeQuietly(set2);
+					}
+					if(books.isEmpty()){
+						return null;
+					}
+					else{
+						return books;
+					}
 				}
 			});
 		}catch(SQLException e){
@@ -158,7 +245,9 @@ public class IDatabase {
 	/*
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
+	
 	private List<Book> getAllBooksFromResultSet(Connection conn,ResultSet set) throws SQLException{
+		//from a result set selected from the books table returning all rows compile a list of books
 		ArrayList<Book> books = new ArrayList<Book>();
 		if(set != null){
 			while(set.next()){
@@ -334,23 +423,36 @@ public class IDatabase {
 	}
 
 	private boolean insertAuthored(Connection conn, int authorId, int bookId) throws SQLException{
+		PreparedStatement stmt = null;
 		PreparedStatement stmt7 = null;
+		ResultSet set = null;
 		boolean success = false;
 		
 		try{
 			if(authorId > 0 && bookId > 0){
-				stmt7 = conn.prepareStatement(
+				stmt = conn.prepareStatement(
+						"SELECT * FROM authored "
+						+ "WHERE book_id = ? " 
+						+ "AND author_id = ? ");
+				stmt.setInt(1, bookId);
+				stmt.setInt(2,authorId);
+				set = stmt.executeQuery();
+				
+				if(!set.next()){
+					stmt7 = conn.prepareStatement(
 						"INSERT INTO authored(author_id, book_id) "
 								+ "VALUES (?,?) ");
 
-				stmt7.setInt(1, authorId);
-				stmt7.setInt(2, bookId);
-				stmt7.executeUpdate();
-
+					stmt7.setInt(1, authorId);
+					stmt7.setInt(2, bookId);
+					stmt7.executeUpdate();
+				}
 				success = true;
 			}
 		}finally{
+			DBUtil.closeQuietly(stmt);
 			DBUtil.closeQuietly(stmt7);
+			DBUtil.closeQuietly(set);
 		}
 		return success;
 	}
@@ -375,6 +477,7 @@ public class IDatabase {
 		PreparedStatement stmt2 = null;
 		PreparedStatement stmt3 = null;
 		PreparedStatement stmt4 = null;
+		PreparedStatement stmt5 = null;
 		try {
 			stmt1 = conn.prepareStatement(
 					"CREATE TABLE authors (" +
@@ -402,18 +505,28 @@ public class IDatabase {
 							"  book_id integer"+
 							")"
 					);
-
+			
 			stmt3.execute();
 
 			stmt4 = conn.prepareStatement(
 					"CREATE TABLE accounts ("+
 							" user_id integer primary key "+
-							"     generated always as identity (start with 1, increment by 1), "+
-							" username varchar(20), "+
-							" password varchar(20)"+
-							")"	
+							"     generated always as identity (start with 1, increment by 1), "
+							+" username varchar(20), "
+							+" password varchar(20), "
+							+" login_id integer, "
+							+" name varchar(30),"
+							+" email varchar(30), "
+							+" phone_number varchar(30)"
+							+")"	
 					);
 			stmt4.execute();
+			
+			stmt5 = conn.prepareStatement(
+					"CREATE TABLE books_for_sale_by_user ("
+							+ " user_id integer, "
+							+ " book_id integer)");
+			stmt5.execute();
 
 			conn.commit();
 		} catch (SQLException e) {

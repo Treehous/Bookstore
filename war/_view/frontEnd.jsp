@@ -13,11 +13,27 @@
 				<td>
 					<div><img src="res/logo.gif.png" alt="YCP"></img></div>
 					
+					<form action="${pageContext.servletContext.contextPath}/search" method="post">
 					<div>
-						<form action="${pageContext.servletContext.contextPath}/search" method="post">
-							<input type="text" name="search" placeholder="Search by title, author, ISBN...">
-						</form>
+						<input type="text" name="search" placeholder="Search by title, author, ISBN...">
 					</div>
+					
+					<div>
+						<table>
+							<tr>
+								<td>
+  									<input name="bybutton" type="submit" value="Search by Title" />
+								</td>
+								<td>
+  									<input name="bybutton" type="submit" value="Search by Author" />
+								</td>
+								<td>
+									<input name="bybutton" type="submit" value="Search by ISBN" />
+								</td>
+							</tr>
+						</table>
+					</div>	
+					</form>
 				</td>
 				
 				<td>
@@ -30,5 +46,9 @@
 		<div class="inlineImage">
 			<img src="res/spartan.gif" alt="Smarty McSpartan"></img>
 		</div>
+		
+		<form action= "${pageContext.servletContext.contextPath}/enterBook" method="get">
+			<input type="submit" name="enter" value="Enter A Book"/>
+		</form>
 	</body>
 </html>

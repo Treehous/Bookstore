@@ -30,7 +30,28 @@ public class SearchServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		SearchController search = new SearchController();
-		List<Book> books = search.getBooksByISBN(req.getParameter("search"));
+		String bar = req.getParameter("search");
+		String byButton = req.getParameter("bybutton");
+		List<Book> books = null;
+		
+		if(bar != null && !bar.equals("")){
+			if(byButton.equals("Search by Title")){
+				books = search.getBooksByTitle(bar);
+			}
+			else if(byButton.equals("Search by Author Last Name")){
+				books = search.getBooksByAuthorLastName(bar);
+			}
+			else if(byButton.equals("Search by ISBN")){
+				books = search.getBooksByISBN(bar);
+			}
+			else {
+				books = search.getBooksByTitle(bar);
+			}
+		}
+		else{
+			books = search.getAllBooks();
+		}
+		
 		
 		req.setAttribute("books", books);
 		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);

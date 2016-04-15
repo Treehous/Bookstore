@@ -40,5 +40,11 @@
 		<div class="inlineImage">
 			<img src="res/spartan.gif" alt="Smarty McSpartan"></img>
 		</div>
+		
+		<div>
+			<form action="${pageContext.servletContext.contextPath}/search" method="get">
+				<input name="toSearch" type="submit" value="Search For A Book"/>
+			</form>
+		</div>
 	</body>
 </html>

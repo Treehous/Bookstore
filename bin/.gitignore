@@ -1,7 +1,4 @@
 /bin/
-/controller/
 /database/
-/main/
-/model/
 /servlet/
-/src/
+/controller/
