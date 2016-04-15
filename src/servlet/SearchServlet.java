@@ -38,7 +38,7 @@ public class SearchServlet extends HttpServlet {
 			if(byButton.equals("Search by Title")){
 				books = search.getBooksByTitle(bar);
 			}
-			else if(byButton.equals("Search by Author")){
+			else if(byButton.equals("Search by Author Last Name")){
 				books = search.getBooksByAuthorLastName(bar);
 			}
 			else if(byButton.equals("Search by ISBN")){
