@@ -10,19 +10,23 @@ import src.Book;
 public class SearchController {
 	private IDatabase database;
 	
-	public List<Book> getBooksByAuthor(List<Author> authors){
+	public List<Book> getBooksByAuthorLastName(String lastname){
 		this.database = DatabaseProvider.getDatabase();
-		
-		return null;
+		return this.database.queryForBooksByAuthorLastName(lastname);
 	} 
 	
 	public List<Book> getBooksByISBN(String isbn){
 		this.database = DatabaseProvider.getDatabase();
-		return database.queryForBooksByISBN(isbn);
+		return this.database.queryForBooksByISBN(isbn);
 	}
 
 	public List<Book> getAllBooks() {
 		this.database = DatabaseProvider.getDatabase();
-		return database.queryForAllBooks();
+		return this.database.queryForAllBooks();
+	}
+
+	public List<Book> getBooksByTitle(String title) {
+		this.database = DatabaseProvider.getDatabase();
+		return this.database.queryForBooksByTitle(title);
 	}
 }
