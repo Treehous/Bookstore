@@ -39,7 +39,7 @@ public class IDatabase {
 					ResultSet set = null;
 					try{
 						stmt = conn.prepareStatement(
-								"SELECT * FROM books" );
+								"SELECT * FROM books, " );
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
 					}finally{
@@ -103,22 +103,22 @@ public class IDatabase {
 						stmt1 = conn.prepareStatement(
 								"SELECT book_id FROM authored "
 										+" WHERE author_id=?");
-						
+
 						stmt2 = conn.prepareStatement(
 								"SELECT * FROM books "
 										+ " WHERE book_id = ?");
-						
+
 						if(author.getAuthorsLastName() != null && !author.getAuthorsLastName().equals("")){
 							stmt = conn.prepareStatement(
 									"Select author_id FROM authors "
 											+ " WHERE author_lastname= %?%" );
-							
+
 							stmt.setString(1, author.getAuthorsLastName());
 							set = stmt.executeQuery();
 
 							if(set.next()){
 								int authorId = set.getInt(1);
-								
+
 								stmt1.setInt(1, authorId);
 								set1 = stmt1.executeQuery();
 
@@ -133,13 +133,13 @@ public class IDatabase {
 							stmt3 = conn.prepareStatement(
 									"Select author_id FROM authors "
 											+ " WHERE author_firstname= %?%" );
-							
+
 							stmt3.setString(1, author.getAuthorsFirstName());
 							set3 = stmt3.executeQuery();
-							
+
 							if(set3.next()){
 								int authorId = set3.getInt(1);
-								
+
 								stmt1.setInt(1, authorId);
 								set4 = stmt1.executeQuery();
 
@@ -202,6 +202,21 @@ public class IDatabase {
 		}catch(SQLException e){
 			System.out.println(e.getMessage());
 			return null;
+		}
+	}
+
+	public boolean insertAccountIntoDatabase(Account account){
+		try{
+			return doQueryLoop(new Query<Boolean>(){
+				@Override
+				public Boolean query(Connection conn) throws SQLException{
+					boolean success = true;
+					return success;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+			return false;
 		}
 	}
 
@@ -510,6 +525,7 @@ public class IDatabase {
 	 * --------------------------STATIC METHODS FOR MODIFING THE DATABASE OUTSIDE OF THE WEB APP------------------------------------
 	 */
 	private boolean createTables(Connection conn){
+		//Table Names: authors, books, authored, books_for_sale_by_user, accounts
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;
 		PreparedStatement stmt3 = null;
@@ -555,7 +571,7 @@ public class IDatabase {
 							+" name varchar(30),"
 							+" email varchar(30), "
 							+" phone_number varchar(30) "
-							+ " locked tinyint(2)"
+							+" locked tinyint(2)"
 							+")"	
 					);
 			stmt4.execute();
@@ -580,14 +596,27 @@ public class IDatabase {
 		return true;
 	}
 
-	private boolean dropTable(Connection conn, String table){
+	private boolean dropTables(Connection conn){
 		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
+		PreparedStatement stmt3 = null;
+		PreparedStatement stmt4 = null;
+		PreparedStatement stmt5 = null;
+		
 
 		try{
-			stmt1 = conn.prepareStatement(
-					"DROP TABLE "+ table + " ");
-
+			stmt1 = conn.prepareStatement("DROP TABLE books");
+			stmt2 = conn.prepareStatement("DROP TABLE authors");
+			stmt3 = conn.prepareStatement("DROP TABLE accounts");
+			stmt4 = conn.prepareStatement("DROP TABLE authored");
+			stmt5 = conn.prepareStatement("DROP TABLE books_for_sale_by_user");
+			
 			stmt1.executeUpdate();
+			stmt2.executeUpdate();
+			stmt3.executeUpdate();
+			stmt4.executeUpdate();
+			stmt5.executeUpdate();
+						
 			conn.commit();
 		}catch(SQLException e){
 			System.out.println(e.getMessage());
@@ -608,6 +637,7 @@ public class IDatabase {
 
 		System.out.println("(C)reate table or (D)rop tables: ");
 		Scanner in = new Scanner(System.in);
+		
 		if(in.nextLine().toUpperCase().equals("C")){
 			System.out.println("----Creating Tables---- ");
 			if(db.createTables(conn)){
@@ -619,24 +649,12 @@ public class IDatabase {
 			}
 		}
 		else{
-			boolean done = false;
-			while(!done){
-				System.out.print("Enter name of table to be dropped: ");
-				in = new Scanner(System.in);
-				String table = in.nextLine();
-
-				System.out.println("----Preparing to Drop :"+table.toUpperCase()+"---- ");
-				if(db.dropTable(conn,table)){
-					System.out.println("----Successfully Dropped :"+table.toUpperCase()+"---- ");
-				}
-				else{
-					System.out.println("----Failed To Drop Table---- ");
-				}
-
-				in = new Scanner(System.in);
-				System.out.println("Drop another table? (Y/n): ");
-				if(in.nextLine().toUpperCase().equals("N"))
-					done = true;
+			System.out.println("----Preparing to Drop Tables---- ");
+			if(db.dropTables(conn)){
+				System.out.println("----Successfully Dropped Tables---- ");
+			}
+			else{
+				System.out.println("----Failed To Drop Table---- ");
 			}
 		}
 		in.close();

@@ -39,11 +39,17 @@
 				<td>
 				<c:choose>
 				<c:when test="${loggedin}">
-					
+					<div> Account Info </div>
 				</c:when>
 				<c:otherwise>
 					<form action="${pageContext.servletContext.contextPath}/login" method="post">
-  						<input name="buttonPress" type="submit" value="login" />
+					
+						<div>Username: <input name="Username" type="text" placeholder="Username"/> </div>
+						<div>Password: <input name="Password" type="text" placeholder="Password"/> </div>
+  						<div> 
+  							<input name="buttonPress" type="submit" value="login" />
+  							<input name="buttonPress" type="submit" value="create" />
+  						</div>
 					</form>
 				</c:otherwise>
 				</c:choose>	
