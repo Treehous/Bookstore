@@ -39,7 +39,7 @@ public class IDatabase {
 					ResultSet set = null;
 					try{
 						stmt = conn.prepareStatement(
-								"SELECT * FROM books, " );
+								"SELECT * FROM books " );
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
 					}finally{
@@ -50,7 +50,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForAllBooks: "+e.getMessage());
 			return null;
 		}
 	}
@@ -77,7 +77,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForAllBooksForSale: "+e.getMessage());
 			return null;
 		}
 	}
@@ -105,7 +105,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForBooksByTitle: "+e.getMessage());
 			return null;
 		}
 	}
@@ -198,7 +198,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForBooksByAuthor: "+e.getMessage());
 			return null;
 		}
 	}
@@ -227,7 +227,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForBooksByISBN: "+e.getMessage());
 			return null;
 		}
 	}
@@ -246,7 +246,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("insertNewAccountIntoDatabase: "+e.getMessage());
 			return false;
 		}
 	}
@@ -275,7 +275,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("insertBookIntoDatabase: "+e.getMessage());
 			return false;
 		}
 	}

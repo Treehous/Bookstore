@@ -42,8 +42,7 @@
 					<div> Account Info </div>
 				</c:when>
 				<c:otherwise>
-					<form action="${pageContext.servletContext.contextPath}/login" method="post">
-					
+					<form action="${pageContext.servletContext.contextPath}/login" method="get">
 						<div>Username: <input name="Username" type="text" placeholder="Username"/> </div>
 						<div>Password: <input name="Password" type="text" placeholder="Password"/> </div>
   						<div> 

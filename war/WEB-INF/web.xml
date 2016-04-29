@@ -48,16 +48,8 @@
   </servlet-mapping>
   
   <!-- AJAX servlets. -->
-  <servlet>
-    <servlet-name>LoginAjaxServlet</servlet-name>
-    <servlet-class>servlet.ajax.LoginAjaxServlet</servlet-class>
-  </servlet>
-  
+ 
   <!--  AJAX servlet mappings. -->
-  <servlet-mapping>
-    <servlet-name>LoginAjaxServlet</servlet-name>
-    <url-pattern>/ajax/LoginGuess</url-pattern>
-  </servlet-mapping>
   
   <!--  Welcome Files -->
   <welcome-file-list>

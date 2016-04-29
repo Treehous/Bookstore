@@ -13,7 +13,6 @@ public class LoginServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
 		System.out.println("In the Login Get servlet");
 		
 		req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
@@ -22,8 +21,10 @@ public class LoginServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
 		System.out.println("In the Login Post servlet");
+		
+		//req.getParameter("")
+		
 		
 		req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
 	}
