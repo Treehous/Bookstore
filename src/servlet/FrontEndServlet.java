@@ -15,6 +15,18 @@ public class FrontEndServlet extends HttpServlet {
 			throws ServletException, IOException {
 		System.out.println("In the FrontEnd Get servlet");
 		
+		boolean loggedin = false;
+		System.out.println(req.getAttribute("loggedin").toString());
+		
+		Object loggedInObject =  req.getAttribute("loggedin");
+		if(loggedInObject instanceof Boolean){
+			loggedin = (Boolean)loggedInObject;
+		}
+		
+		if(loggedin){
+			
+		}
+		
 		req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
 	}
 	

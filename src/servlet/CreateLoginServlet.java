@@ -24,7 +24,7 @@ public class CreateLoginServlet extends HttpServlet {
 				req.setAttribute("password", req.getParameter("Password"));
 				req.getRequestDispatcher("/_view/create-login.jsp").forward(req, resp);
 			}
-			else if(req.getParameter("buttonPress").toUpperCase().equals("LOGIN")){
+			else if(button.toUpperCase().equals("LOGIN")){
 				//TODO: login
 				req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
 			}
@@ -91,7 +91,7 @@ public class CreateLoginServlet extends HttpServlet {
 
 			if(controller.createAccount(account)){
 				req.getSession(true).setAttribute("username", user);
-				req.getSession().setAttribute("loginId", loginId);
+				req.getSession().setAttribute("login_id", loginId);
 				loggedin = true;
 				req.setAttribute("loggedin", loggedin);
 			}

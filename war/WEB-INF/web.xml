@@ -25,6 +25,11 @@
   	<servlet-name>EnterBookServlet</servlet-name>
   	<servlet-class>servlet.EnterBookServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+  	<servlet-name>LoginServlet</servlet-name>
+  	<servlet-class>servlet.LoginServlet</servlet-class>
+  </servlet>
 
   <!-- Servlet mappings -->
   <servlet-mapping>
@@ -45,6 +50,11 @@
   <servlet-mapping>
   	<servlet-name>EnterBookServlet</servlet-name>
   	<url-pattern>/enter-book</url-pattern>
+  </servlet-mapping>
+  
+   <servlet-mapping>
+  	<servlet-name>LoginServlet</servlet-name>
+  	<url-pattern>/login</url-pattern>
   </servlet-mapping>
   
   <!-- AJAX servlets. -->
