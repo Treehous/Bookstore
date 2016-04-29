@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Fri Apr 15 11:23:45 EDT 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.2.0 - (1582446): instance a816c00e-0154-1a85-4f64-000005e16c90 
-on database directory /home/gbread/git/Bookstore/database/bookstore.db with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+Fri Apr 15 12:41:27 EDT 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.2.0 - (1582446): instance a816c00e-0154-1acc-7308-0000069a02b0 
+on database directory /home/gbread/git/database/bookstore.db with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
 Loaded from file:/home/gbread/Programs/java-project/CS320_Derby/lib/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_74-b02

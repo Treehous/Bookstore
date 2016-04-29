@@ -10,9 +10,9 @@ import src.Book;
 public class SearchController {
 	private IDatabase database;
 	
-	public List<Book> getBooksByAuthorLastName(String lastname){
+	public List<Book> getBooksByAuthor(Author author){
 		this.database = DatabaseProvider.getDatabase();
-		return this.database.queryForBooksByAuthorLastName(lastname);
+		return this.database.queryForBooksByAuthor(author);
 	} 
 	
 	public List<Book> getBooksByISBN(String isbn){

@@ -37,9 +37,16 @@
 				</td>
 				
 				<td>
+				<c:choose>
+				<c:when test="${loggedin}">
+					
+				</c:when>
+				<c:otherwise>
 					<form action="${pageContext.servletContext.contextPath}/login" method="post">
   						<input name="buttonPress" type="submit" value="login" />
-					</form>		
+					</form>
+				</c:otherwise>
+				</c:choose>	
 				</td>
 		</table>
 		

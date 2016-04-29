@@ -19,7 +19,7 @@ public class IDatabase {
 			throw new IllegalStateException("Could not load the driver");
 		}
 	}
-	
+
 	private static final int TIMEOUT = 10;
 
 	private interface Query<ReturnType>{
@@ -54,7 +54,7 @@ public class IDatabase {
 			return null;
 		}
 	}
-	
+
 	public List<Book> queryForBooksByTitle(String title){
 		try{
 			return doQueryLoop(new Query<List<Book>>(){
@@ -66,7 +66,7 @@ public class IDatabase {
 					try{
 						stmt = conn.prepareStatement(
 								"SELECT * FROM books "
-								+ " WHERE title = ?" );
+										+ " WHERE title = ?" );
 						stmt.setString(1, title);
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
@@ -82,8 +82,8 @@ public class IDatabase {
 			return null;
 		}
 	}
-	
-	public List<Book> queryForBooksByAuthorLastName(String lastname){
+
+	public List<Book> queryForBooksByAuthor(Author author){
 		try{
 			return doQueryLoop(new Query<List<Book>>(){
 				@Override
@@ -92,41 +92,75 @@ public class IDatabase {
 					PreparedStatement stmt = null;
 					PreparedStatement stmt1 = null;
 					PreparedStatement stmt2 = null;
+					PreparedStatement stmt3 = null;
 					ResultSet set = null;
 					ResultSet set1 = null;
 					ResultSet set2 = null;
+					ResultSet set3 = null;
+					ResultSet set4 = null;
+					ResultSet set5 = null;
 					try{
-						stmt = conn.prepareStatement(
-								"Select author_id FROM authors "
-								+ " WHERE author_lastname=?" );
-						stmt.setString(1, lastname);
-						set = stmt.executeQuery();
+						stmt1 = conn.prepareStatement(
+								"SELECT book_id FROM authored "
+										+" WHERE author_id=?");
 						
-						if(set.next()){
-							int authorId = set.getInt(1);
-							stmt1 = conn.prepareStatement(
-									"SELECT book_id FROM authored "
-									+" WHERE author_id=?");
-							stmt1.setInt(1, authorId);
-							set1 = stmt1.executeQuery();
+						stmt2 = conn.prepareStatement(
+								"SELECT * FROM books "
+										+ " WHERE book_id = ?");
+						
+						if(author.getAuthorsLastName() != null && !author.getAuthorsLastName().equals("")){
+							stmt = conn.prepareStatement(
+									"Select author_id FROM authors "
+											+ " WHERE author_lastname= %?%" );
 							
-							stmt2 = conn.prepareStatement(
-									"SELECT * FROM books "
-									+ " WHERE book_id = ?");
+							stmt.setString(1, author.getAuthorsLastName());
+							set = stmt.executeQuery();
+
+							if(set.next()){
+								int authorId = set.getInt(1);
+								
+								stmt1.setInt(1, authorId);
+								set1 = stmt1.executeQuery();
+
+								while(set1.next()){
+									stmt2.setInt(1, set1.getInt(1));
+									set2 = stmt2.executeQuery();
+									books.addAll(getAllBooksFromResultSet(conn,set2));
+								}	
+							}
+						}
+						if(author.getAuthorsFirstName() != null && !author.getAuthorsFirstName().equals("")){
+							stmt3 = conn.prepareStatement(
+									"Select author_id FROM authors "
+											+ " WHERE author_firstname= %?%" );
 							
-							while(set1.next()){
-								stmt2.setInt(1, set1.getInt(1));
-								set2 = stmt2.executeQuery();
-								books.addAll(getAllBooksFromResultSet(conn,set2));
-							}	
+							stmt3.setString(1, author.getAuthorsFirstName());
+							set3 = stmt3.executeQuery();
+							
+							if(set3.next()){
+								int authorId = set3.getInt(1);
+								
+								stmt1.setInt(1, authorId);
+								set4 = stmt1.executeQuery();
+
+								while(set4.next()){
+									stmt2.setInt(1, set1.getInt(1));
+									set5 = stmt2.executeQuery();
+									books.addAll(getAllBooksFromResultSet(conn,set5));
+								}	
+							}
 						}
 					}finally{
 						DBUtil.closeQuietly(stmt);
 						DBUtil.closeQuietly(stmt1);
 						DBUtil.closeQuietly(stmt2);
+						DBUtil.closeQuietly(stmt3);
 						DBUtil.closeQuietly(set);
 						DBUtil.closeQuietly(set1);
 						DBUtil.closeQuietly(set2);
+						DBUtil.closeQuietly(set3);
+						DBUtil.closeQuietly(set4);
+						DBUtil.closeQuietly(set5);
 					}
 					if(books.isEmpty()){
 						return null;
@@ -141,7 +175,7 @@ public class IDatabase {
 			return null;
 		}
 	}
-	
+
 	public List<Book> queryForBooksByISBN(String isbn){
 		try{
 			return doQueryLoop(new Query<List<Book>>(){
@@ -150,11 +184,11 @@ public class IDatabase {
 					List<Book> books = null;
 					PreparedStatement stmt = null;
 					ResultSet set = null;
-					
+
 					try{
 						stmt = conn.prepareStatement(
 								"SELECT * FROM books "
-								+ "WHERE isbn=?" );
+										+ "WHERE isbn=?" );
 						stmt.setString(1, isbn);
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
@@ -202,7 +236,7 @@ public class IDatabase {
 	/*
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
-	
+
 	private List<Book> getAllBooksFromResultSet(Connection conn,ResultSet set) throws SQLException{
 		//from a result set selected from the books table returning all rows compile a list of books
 		ArrayList<Book> books = new ArrayList<Book>();
@@ -218,19 +252,19 @@ public class IDatabase {
 		}
 		return books;
 	}
-	
+
 	private List<Author> getAuthorsFromBookId(Connection conn, int bookId) throws SQLException{
 		List<Author> authors = new ArrayList<Author>();
 		PreparedStatement stmt1 = null;
 		ResultSet set1 = null;
-		
+
 		try{
 			stmt1 = conn.prepareStatement(
 					"SELECT author_id FROM authored "
-					+ "WHERE book_id=?");
+							+ "WHERE book_id=?");
 			stmt1.setInt(1, bookId);
 			set1 = stmt1.executeQuery();
-			
+
 			while(set1.next()){
 				Author author = getAuthorFromAuthorId(conn,set1.getInt(1));
 				if(author != null){
@@ -243,19 +277,19 @@ public class IDatabase {
 		}
 		return authors;
 	}
-	
+
 	private Author getAuthorFromAuthorId(Connection conn, int authorId) throws SQLException{
 		Author author = null;
 		PreparedStatement stmt1 = null;
 		ResultSet set1 = null;
-		
+
 		try{
 			stmt1 = conn.prepareStatement(
 					"SELECT author_lastname, author_firstname FROM authors "
-					+ "WHERE author_id=?");
+							+ "WHERE author_id=?");
 			stmt1.setInt(1, authorId);
 			set1 = stmt1.executeQuery();
-			
+
 			if(set1.next()){
 				author = new Author();
 				inflateAuthor(set1,author,1);
@@ -266,7 +300,7 @@ public class IDatabase {
 		}
 		return author;
 	}
-	
+
 	private int insertAuthor(Connection conn, Author author) throws SQLException{
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;
@@ -384,21 +418,21 @@ public class IDatabase {
 		PreparedStatement stmt7 = null;
 		ResultSet set = null;
 		boolean success = false;
-		
+
 		try{
 			if(authorId > 0 && bookId > 0){
 				stmt = conn.prepareStatement(
 						"SELECT * FROM authored "
-						+ "WHERE book_id = ? " 
-						+ "AND author_id = ? ");
+								+ "WHERE book_id = ? " 
+								+ "AND author_id = ? ");
 				stmt.setInt(1, bookId);
 				stmt.setInt(2,authorId);
 				set = stmt.executeQuery();
-				
+
 				if(!set.next()){
 					stmt7 = conn.prepareStatement(
-						"INSERT INTO authored(author_id, book_id) "
-								+ "VALUES (?,?) ");
+							"INSERT INTO authored(author_id, book_id) "
+									+ "VALUES (?,?) ");
 
 					stmt7.setInt(1, authorId);
 					stmt7.setInt(2, bookId);
@@ -413,7 +447,7 @@ public class IDatabase {
 		}
 		return success;
 	}
-	
+
 	private int inflateAuthor(ResultSet set, Author author, int index) throws SQLException{
 		String last = set.getString(index++);
 		String first = set.getString(index++);
@@ -426,11 +460,11 @@ public class IDatabase {
 		book.setISBN(set.getString(index++));
 		return index;
 	}
-	
+
 	/*
 	 * ------------------------------------CORE DATABASE FUNCTIONALITY METHODS------------------------------------------------------------
 	 */
-	
+
 	private Connection connect() {
 		Connection conn = null;
 		try{
@@ -471,7 +505,7 @@ public class IDatabase {
 			DBUtil.closeQuietly(conn);
 		}
 	}
-	
+
 	/*
 	 * --------------------------STATIC METHODS FOR MODIFING THE DATABASE OUTSIDE OF THE WEB APP------------------------------------
 	 */
@@ -508,7 +542,7 @@ public class IDatabase {
 							"  book_id integer"+
 							")"
 					);
-			
+
 			stmt3.execute();
 
 			stmt4 = conn.prepareStatement(
@@ -520,11 +554,12 @@ public class IDatabase {
 							+" login_id integer, "
 							+" name varchar(30),"
 							+" email varchar(30), "
-							+" phone_number varchar(30)"
+							+" phone_number varchar(30) "
+							+ " locked tinyint(2)"
 							+")"	
 					);
 			stmt4.execute();
-			
+
 			stmt5 = conn.prepareStatement(
 					"CREATE TABLE books_for_sale_by_user ("
 							+ " user_id integer, "
