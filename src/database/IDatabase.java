@@ -54,6 +54,33 @@ public class IDatabase {
 			return null;
 		}
 	}
+	
+	public List<Book> queryForAllBooksForSale(){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = null;
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					try{
+						stmt = conn.prepareStatement(
+								"SELECT books.* FROM books, books_for_sale_by_user"
+								+ " WHERE books.book_id = books_for_sale_by_user.book_id " );
+						set = stmt.executeQuery();
+						books = getAllBooksFromResultSet(conn,set);
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
 
 	public List<Book> queryForBooksByTitle(String title){
 		try{
@@ -66,7 +93,7 @@ public class IDatabase {
 					try{
 						stmt = conn.prepareStatement(
 								"SELECT * FROM books "
-										+ " WHERE title = ?" );
+										+ " WHERE title = %?%" );
 						stmt.setString(1, title);
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
@@ -205,12 +232,16 @@ public class IDatabase {
 		}
 	}
 
-	public boolean insertAccountIntoDatabase(Account account){
+	public boolean insertNewAccountIntoDatabase(Account account){
 		try{
 			return doQueryLoop(new Query<Boolean>(){
 				@Override
 				public Boolean query(Connection conn) throws SQLException{
-					boolean success = true;
+					boolean success = false;
+					if(!userAccountExists(conn, account.getUsername())){
+						if(insertUserAccount(conn,account));
+							success = true;
+					}
 					return success;
 				}
 			});
@@ -251,6 +282,77 @@ public class IDatabase {
 	/*
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
+	private boolean insertUserAccount(Connection conn, Account account) throws SQLException{
+		boolean success = false;
+		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
+		PreparedStatement stmt3 = null;
+		ResultSet set = null;
+		
+		try{
+			stmt1 = conn.prepareStatement(
+					"INSERT INTO accounts (username, password, login_id, name, email, phone_number, locked) "
+					+ " VALUES(?,?,?,?,?,?,?)");
+			stmt1.setString(1, account.getUsername());
+			stmt1.setString(2, account.getPassword());
+			stmt1.setInt(3, account.getLoginId());
+			stmt1.setString(4, account.getName());
+			stmt1.setString(5, account.getEmail());
+			
+			if(account.isLocked())
+				stmt1.setInt(6, 1);
+			else 
+				stmt1.setInt(6, 0);
+			
+			stmt1.executeUpdate();
+			
+			stmt2 = conn.prepareStatement(
+					"SELECT user_id FROM accounts "
+					+ " WHERE username = ?");
+			stmt2.setString(1, account.getUsername());
+			set = stmt2.executeQuery();
+			
+			if(set.next()){
+				int userId = set.getInt(1);
+				stmt3 = conn.prepareStatement(
+						" INSERT INTO books_for_sale_by_user (user_id, book_id) "
+						+ " VALUES(?,?) ");
+				for(Book book: account.getBooksForSale()){
+					int bookId = insertBook(conn, book); // watch this statement when running??
+					stmt3.setInt(1, userId);
+					stmt3.setInt(2, bookId);
+					stmt3.executeUpdate();
+				}
+				success = true;
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt1);
+			DBUtil.closeQuietly(stmt2);
+			DBUtil.closeQuietly(stmt3);
+			DBUtil.closeQuietly(set);
+		}
+		return success;
+	}
+	
+	private boolean userAccountExists(Connection conn, String username) throws SQLException{
+		boolean registered = false;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		
+		try{
+			stmt = conn.prepareStatement(
+					"SELECT * from accounts WHERE username=? ");
+			stmt.setString(1, username);
+			set = stmt.executeQuery();
+			if(set.next()){
+				registered = true;
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return registered;
+	}
 
 	private List<Book> getAllBooksFromResultSet(Connection conn,ResultSet set) throws SQLException{
 		//from a result set selected from the books table returning all rows compile a list of books
@@ -570,8 +672,8 @@ public class IDatabase {
 							+" login_id integer, "
 							+" name varchar(30),"
 							+" email varchar(30), "
-							+" phone_number varchar(30) "
-							+" locked tinyint(2)"
+							+" phone_number varchar(30), "
+							+" locked integer"
 							+")"	
 					);
 			stmt4.execute();

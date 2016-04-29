@@ -1,5 +1,8 @@
 package src;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Account {
 	private String username = null;
 	private String password = null;
@@ -8,12 +11,13 @@ public class Account {
 	private String email = null;
 	private String phoneNumber = null;
 	private boolean locked = false;
+	private List<Book> books;
 	
 	public Account(){
 		
 	}
 	
-	public Account(String user, String pass, int id, String name, String email, String phone, boolean lock){
+	public Account(String user, String pass, int id, String name, String email, String phone, boolean lock, List<Book> books){
 		this.username = user;
 		this.password = pass;
 		this.loginId = id;
@@ -21,6 +25,12 @@ public class Account {
 		this.email = email;
 		this.phoneNumber = phone;
 		this.locked = lock;
+		if(books != null){
+			this.books = books;
+		}
+		else {
+			books = new ArrayList<Book>();
+		}
 	}
 	
 	public String getUsername(){
@@ -49,6 +59,10 @@ public class Account {
 
 	public boolean isLocked(){
 		return this.locked;
+	}
+	
+	public List<Book> getBooksForSale(){
+		return this.books;
 	}
 	
 	public boolean setUsername(String user){
@@ -96,8 +110,17 @@ public class Account {
 	public void lock(){
 		this.locked = true;
 	}
+	
 	public void unlock(){
 		this.locked = false;
+	}
+	
+	public void addBookForSale(Book book){
+		this.books.add(book);
+	}
+	
+	public void addAllBooksForSale(List<Book> books){
+		this.books.addAll(books);
 	}
 	
 	//TODO
