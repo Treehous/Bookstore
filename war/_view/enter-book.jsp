@@ -14,7 +14,7 @@
 					<div><img src="res/logo.gif.png" alt="YCP"></img></div>
 					
 					<div>
-						<form action="${pageContext.servletContext.contextPath}/enterBook" method="post">
+						<form action="${pageContext.servletContext.contextPath}/enter-book" method="post">
 							<div> <input type="text" name="title" placeholder="Title"> </div>
 							<div> <input type="text" name="author" placeholder="Author"></div>
 							<div> <input type="text" name="isbn" placeholder="ISBN"></div>
@@ -24,7 +24,7 @@
 				</td>
 				
 				<td>
-					<form action="${pageContext.servletContext.contextPath}/login" method="post">
+					<form action="${pageContext.servletContext.contextPath}/create-login" method="post">
   						<input name="buttonPress" type="submit" value="login" />
 					</form>		
 				</td>

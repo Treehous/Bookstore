@@ -18,7 +18,7 @@ public class EnterBookServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		req.getRequestDispatcher("/_view/enterBook.jsp").forward(req, resp);
+		req.getRequestDispatcher("/_view/enter-book.jsp").forward(req, resp);
 	}
 
 	@Override
@@ -52,6 +52,6 @@ public class EnterBookServlet extends HttpServlet {
 		
 		req.setAttribute("errorMessage",   error);
 		req.setAttribute("successMessage", success);
-		req.getRequestDispatcher("/_view/enterBook.jsp").forward(req, resp);
+		req.getRequestDispatcher("/_view/enter-book.jsp").forward(req, resp);
 	}
 }

@@ -13,24 +13,17 @@ public class FrontEndServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
 		System.out.println("In the FrontEnd Get servlet");
 		
-		req.getRequestDispatcher("/_view/frontEnd.jsp").forward(req, resp);
+		req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
 	}
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
 		System.out.println("In the FrontEnd Post servlet");
 		
-		if(req.getParameter("buttonPress").equals("login")){
-			req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
-		}
-		else{
-			req.getRequestDispatcher("/_view/frontEnd.jsp").forward(req, resp);
-		}
+		req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
 	}
 
 }

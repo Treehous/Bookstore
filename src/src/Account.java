@@ -2,6 +2,7 @@ package src;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Account {
 	private String username = null;
@@ -25,11 +26,11 @@ public class Account {
 		this.email = email;
 		this.phoneNumber = phone;
 		this.locked = lock;
-		if(books != null){
-			this.books = books;
+		if(books == null){
+			this.books = new ArrayList<Book>();
 		}
 		else {
-			books = new ArrayList<Book>();
+			this.books = books;
 		}
 	}
 	
@@ -121,6 +122,12 @@ public class Account {
 	
 	public void addAllBooksForSale(List<Book> books){
 		this.books.addAll(books);
+	}
+	
+	public int createLoginId() {
+		Random r = new Random();
+		this.loginId = r.nextInt(99999999);
+		return this.loginId;
 	}
 	
 	//TODO

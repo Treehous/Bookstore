@@ -232,6 +232,44 @@ public class IDatabase {
 		}
 	}
 
+	public String queryForPasswordByUsername(String username){
+		try{
+			return doQueryLoop(new Query<String>(){
+				@Override 
+				public String query(Connection conn) throws SQLException{
+					String password = null;
+					password = getUserPassword(conn,username);
+					return password;
+				}
+			});
+		} catch(SQLException e){
+			System.out.println("queryForPasswordByUsername: "+e.getMessage());
+			return null;
+		}
+	}
+	
+	public int queryForLoginIdByUsername(String username){
+		
+	}
+	
+	public Account queryForUserAccountByUsername(String username){
+		try{
+			return doQueryLoop(new Query<Account>(){
+				@Override
+				public Account query(Connection conn) throws SQLException{
+					Account account = null;
+					if(userAccountExists(conn, username)){
+						account = getAccountByUsername(conn,username);
+					}
+					return account;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForUserAccountByUsername: "+e.getMessage());
+			return null;
+		}
+	}
+	
 	public boolean insertNewAccountIntoDatabase(Account account){
 		try{
 			return doQueryLoop(new Query<Boolean>(){
@@ -282,6 +320,31 @@ public class IDatabase {
 	/*
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
+	
+	private Account getAccountByUsername(Connection conn, String username){
+		Account account = new Account();
+	}
+	
+	private String getUserPassword(Connection conn,String username) throws SQLException{
+		String password = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		try{
+			stmt = conn.prepareStatement(
+					" SELECT password FROM accounts WHERE username=? ");
+			stmt.setString(1,username);
+			set = stmt.executeQuery();
+			
+			if(set.next()){
+				password = set.getString(1);
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return password;
+	}
+	
 	private boolean insertUserAccount(Connection conn, Account account) throws SQLException{
 		boolean success = false;
 		PreparedStatement stmt1 = null;
@@ -298,11 +361,12 @@ public class IDatabase {
 			stmt1.setInt(3, account.getLoginId());
 			stmt1.setString(4, account.getName());
 			stmt1.setString(5, account.getEmail());
+			stmt1.setString(6, account.getPhoneNumber());
 			
 			if(account.isLocked())
-				stmt1.setInt(6, 1);
+				stmt1.setInt(7, 1);
 			else 
-				stmt1.setInt(6, 0);
+				stmt1.setInt(7, 0);
 			
 			stmt1.executeUpdate();
 			
