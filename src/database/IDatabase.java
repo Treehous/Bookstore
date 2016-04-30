@@ -19,7 +19,7 @@ public class IDatabase {
 			throw new IllegalStateException("Could not load the driver");
 		}
 	}
-	
+
 	private static final int TIMEOUT = 10;
 
 	private interface Query<ReturnType>{
@@ -39,7 +39,7 @@ public class IDatabase {
 					ResultSet set = null;
 					try{
 						stmt = conn.prepareStatement(
-								"Select * FROM books" );
+								"SELECT * FROM books " );
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
 					}finally{
@@ -50,11 +50,159 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForAllBooks: "+e.getMessage());
 			return null;
 		}
 	}
 	
+	public List<Book> queryForAllBooksForSale(){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = null;
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					try{
+						stmt = conn.prepareStatement(
+								"SELECT books.* FROM books, books_for_sale_by_user"
+								+ " WHERE books.book_id = books_for_sale_by_user.book_id " );
+						set = stmt.executeQuery();
+						books = getAllBooksFromResultSet(conn,set);
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForAllBooksForSale: "+e.getMessage());
+			return null;
+		}
+	}
+
+	public List<Book> queryForBooksByTitle(String title){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = null;
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					try{
+						stmt = conn.prepareStatement(
+								"SELECT * FROM books "
+										+ " WHERE title LIKE ?" );
+						stmt.setString(1, "%"+title+"%");
+						set = stmt.executeQuery();
+						books = getAllBooksFromResultSet(conn,set);
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForBooksByTitle: "+e.getMessage());
+			return null;
+		}
+	}
+
+	public List<Book> queryForBooksByAuthor(Author author){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = new ArrayList<Book>();
+					PreparedStatement stmt = null;
+					PreparedStatement stmt1 = null;
+					PreparedStatement stmt2 = null;
+					PreparedStatement stmt3 = null;
+					ResultSet set = null;
+					ResultSet set1 = null;
+					ResultSet set2 = null;
+					ResultSet set3 = null;
+					ResultSet set4 = null;
+					ResultSet set5 = null;
+					try{
+						stmt1 = conn.prepareStatement(
+								"SELECT book_id FROM authored "
+										+" WHERE author_id=?");
+
+						stmt2 = conn.prepareStatement(
+								"SELECT * FROM books "
+										+ " WHERE book_id = ?");
+
+						if(author.getAuthorsLastName() != null && !author.getAuthorsLastName().equals("")){
+							stmt = conn.prepareStatement(
+									"Select author_id FROM authors "
+											+ " WHERE author_lastname LIKE ?" );
+							
+							stmt.setString(1, "%"+author.getAuthorsLastName()+"%");
+							System.out.println(author.getAuthorsLastName());
+							set = stmt.executeQuery();
+							if(set.next()){
+								int authorId = set.getInt(1);
+
+								stmt1.setInt(1, authorId);
+								set1 = stmt1.executeQuery();
+
+								while(set1.next()){
+									stmt2.setInt(1, set1.getInt(1));
+									set2 = stmt2.executeQuery();
+									books.addAll(getAllBooksFromResultSet(conn,set2));
+								}	
+							}
+						}
+						if(author.getAuthorsFirstName() != null && !author.getAuthorsFirstName().equals("")){
+							stmt3 = conn.prepareStatement(
+									"SELECT author_id FROM authors "
+											+ " WHERE author_firstname LIKE ?" );
+							
+							stmt3.setString(1, "%"+author.getAuthorsFirstName()+"%");
+							set3 = stmt3.executeQuery();
+
+							if(set3.next()){
+								int authorId = set3.getInt(1);
+
+								stmt1.setInt(1, authorId);
+								set4 = stmt1.executeQuery();
+
+								while(set4.next()){
+									stmt2.setInt(1, set1.getInt(1));
+									set5 = stmt2.executeQuery();
+									books.addAll(getAllBooksFromResultSet(conn,set5));
+								}	
+							}
+						}
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(stmt1);
+						DBUtil.closeQuietly(stmt2);
+						DBUtil.closeQuietly(stmt3);
+						DBUtil.closeQuietly(set);
+						DBUtil.closeQuietly(set1);
+						DBUtil.closeQuietly(set2);
+						DBUtil.closeQuietly(set3);
+						DBUtil.closeQuietly(set4);
+						DBUtil.closeQuietly(set5);
+					}
+					if(books.isEmpty()){
+						return null;
+					}
+					else{
+						return books;
+					}
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForBooksByAuthor: "+e.getMessage());
+			return null;
+		}
+	}
+
 	public List<Book> queryForBooksByISBN(String isbn){
 		try{
 			return doQueryLoop(new Query<List<Book>>(){
@@ -63,11 +211,11 @@ public class IDatabase {
 					List<Book> books = null;
 					PreparedStatement stmt = null;
 					ResultSet set = null;
-					
+
 					try{
 						stmt = conn.prepareStatement(
 								"SELECT * FROM books "
-								+ "WHERE isbn=?" );
+										+ "WHERE isbn=?" );
 						stmt.setString(1, isbn);
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
@@ -79,8 +227,120 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForBooksByISBN: "+e.getMessage());
 			return null;
+		}
+	}
+
+	public String queryForPasswordByUsername(String username){
+		try{
+			return doQueryLoop(new Query<String>(){
+				@Override 
+				public String query(Connection conn) throws SQLException{
+					String password = null;
+					password = getUserPassword(conn,username);
+					return password;
+				}
+			});
+		} catch(SQLException e){
+			System.out.println("queryForPasswordByUsername: "+e.getMessage());
+			return null;
+		}
+	}
+	
+	public int queryForLoginIdByUsername(String username){
+		try{
+			return doQueryLoop(new Query<Integer>(){
+				@Override
+				public Integer query(Connection conn) throws SQLException{
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					int loginId = -1;
+					try{
+						stmt = conn.prepareStatement(
+								" SELECT login_id FROM accounts "
+								+ " WHERE username = ?");
+						stmt.setString(1, username);
+						set = stmt.executeQuery();
+						
+						if(set.next()){
+							loginId = set.getInt(1);
+						}
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return loginId;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForLoginIdByUsername: "+e.getMessage());
+			return -1;
+		}
+	}
+	
+	public boolean updateLoginIdByUsername(String username, int loginId){
+		try{
+			return doQueryLoop(new Query<Boolean>(){
+				@Override 
+				public Boolean query(Connection conn)throws SQLException{
+					boolean success = false;
+					PreparedStatement stmt = null;
+					
+					try{
+						stmt = conn.prepareStatement(
+								"UPDATE accounts "
+								+ " SET login_id = ? "
+								+ " WHERE username = ? ");
+						stmt.setInt(1, loginId);
+						stmt.setString(2, username);
+						success = true;
+					}finally{
+						DBUtil.closeQuietly(stmt);
+					}
+					return success;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("updateLoginIdByUsername: "+e.getMessage());
+			return false;
+		}
+	}
+	
+	public Account queryForUserAccountByUsername(String username){
+		try{
+			return doQueryLoop(new Query<Account>(){
+				@Override
+				public Account query(Connection conn) throws SQLException{
+					Account account = null;
+					if(userAccountExists(conn, username)){
+						account = getAccountByUsername(conn,username);
+					}
+					return account;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForUserAccountByUsername: "+e.getMessage());
+			return null;
+		}
+	}
+	
+	public boolean insertNewAccountIntoDatabase(Account account){
+		try{
+			return doQueryLoop(new Query<Boolean>(){
+				@Override
+				public Boolean query(Connection conn) throws SQLException{
+					boolean success = false;
+					if(!userAccountExists(conn, account.getUsername())){
+						if(insertUserAccount(conn,account));
+							success = true;
+					}
+					return success;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("insertNewAccountIntoDatabase: "+e.getMessage());
+			return false;
 		}
 	}
 
@@ -108,83 +368,173 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("insertBookIntoDatabase: "+e.getMessage());
 			return false;
-		}
-	}
-	/*
-	 * ------------------------------------CORE DATABASE FUNCTIONALITY METHODS------------------------------------------------------------
-	 */
-	private Connection connect() {
-		Connection conn = null;
-		try{
-			conn =  DriverManager.getConnection("jdbc:derby:database/bookstore.db;create=true");	
-			conn.setAutoCommit(false);
-		} catch(SQLException e){
-			System.out.println(e.getSQLState());
-		}
-		return conn;
-	}
-
-	private<ReturnType> ReturnType doQueryLoop(Query<ReturnType> query) throws SQLException{
-		Connection conn = connect();
-
-		ReturnType ret = null;
-		int times = 0;
-		boolean done = false;
-		try{
-			while(!done && times < TIMEOUT){
-				try{
-					ret = query.query(conn);
-					conn.commit();
-					done = true;
-				}catch(SQLException e){
-					if (e.getSQLState() != null && e.getSQLState().equals("41000")) {
-						times++;
-					} else {
-						throw e;
-					}
-				}
-			}
-
-			if (!done) {
-				throw new SQLException("Query Failed, TIMEOUT. ");
-			}
-			return ret;
-		}finally{
-			DBUtil.closeQuietly(conn);
 		}
 	}
 	/*
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
+	
+	private Account getAccountByUsername(Connection conn, String username) throws SQLException{
+		Account account = null;
+		PreparedStatement stmt = null;
+		PreparedStatement stmt2 = null;
+		ResultSet set = null;
+		ResultSet set2 = null;
+		try{
+			stmt = conn.prepareStatement(
+					" SELECT * FROM accounts "
+					+" WHERE username=?");
+			stmt.setString(1, username);
+			
+			set = stmt.executeQuery();
+			
+			if(set.next()){
+				int userId = set.getInt(1);
+				account = inflateAccount(set,2);
+				
+				stmt2 = conn.prepareStatement(
+						" SELECT book_id FROM books_for_sale_by_user "
+						+ " WHERE user_id = ?");
+				stmt2.setInt(1, userId);
+			
+				set2 = stmt2.executeQuery();
+				
+				while(set2.next()){
+					account.addBookForSale(getBookFromBookId(conn,set2.getInt(1)));
+				}
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(stmt2);
+			DBUtil.closeQuietly(set);
+			DBUtil.closeQuietly(set2);
+		}
+		return account;
+	}
+	
+	private String getUserPassword(Connection conn,String username) throws SQLException{
+		String password = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		try{
+			stmt = conn.prepareStatement(
+					" SELECT password FROM accounts WHERE username=? ");
+			stmt.setString(1,username);
+			set = stmt.executeQuery();
+			
+			if(set.next()){
+				password = set.getString(1);
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return password;
+	}
+	
+	private boolean insertUserAccount(Connection conn, Account account) throws SQLException{
+		boolean success = false;
+		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
+		PreparedStatement stmt3 = null;
+		ResultSet set = null;
+		
+		try{
+			stmt1 = conn.prepareStatement(
+					"INSERT INTO accounts (username, password, login_id, name, email, phone_number, locked) "
+					+ " VALUES(?,?,?,?,?,?,?)");
+			stmt1.setString(1, account.getUsername());
+			stmt1.setString(2, account.getPassword());
+			stmt1.setInt(3, account.getLoginId());
+			stmt1.setString(4, account.getName());
+			stmt1.setString(5, account.getEmail());
+			stmt1.setString(6, account.getPhoneNumber());
+			
+			if(account.isLocked())
+				stmt1.setInt(7, 1);
+			else 
+				stmt1.setInt(7, 0);
+			
+			stmt1.executeUpdate();
+			
+			stmt2 = conn.prepareStatement(
+					"SELECT user_id FROM accounts "
+					+ " WHERE username = ?");
+			stmt2.setString(1, account.getUsername());
+			set = stmt2.executeQuery();
+			
+			if(set.next()){
+				int userId = set.getInt(1);
+				stmt3 = conn.prepareStatement(
+						" INSERT INTO books_for_sale_by_user (user_id, book_id) "
+						+ " VALUES(?,?) ");
+				for(Book book: account.getBooksForSale()){
+					int bookId = insertBook(conn, book); // watch this statement when running??
+					stmt3.setInt(1, userId);
+					stmt3.setInt(2, bookId);
+					stmt3.executeUpdate();
+				}
+				success = true;
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt1);
+			DBUtil.closeQuietly(stmt2);
+			DBUtil.closeQuietly(stmt3);
+			DBUtil.closeQuietly(set);
+		}
+		return success;
+	}
+	
+	private boolean userAccountExists(Connection conn, String username) throws SQLException{
+		boolean registered = false;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		
+		try{
+			stmt = conn.prepareStatement(
+					"SELECT * from accounts WHERE username=? ");
+			stmt.setString(1, username);
+			set = stmt.executeQuery();
+			if(set.next()){
+				registered = true;
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return registered;
+	}
+
 	private List<Book> getAllBooksFromResultSet(Connection conn,ResultSet set) throws SQLException{
+		//from a result set selected from the books table returning all rows compile a list of books
 		ArrayList<Book> books = new ArrayList<Book>();
 		if(set != null){
 			while(set.next()){
-				Book book = new Book();
+				Book book = null;
 				int index = 1;
 				int bookId = set.getInt(index++);
-				inflateBook(set,book,index);
+				book = inflateBook(set,index);
 				book.setAuthor(getAuthorsFromBookId(conn,bookId));
 				books.add(book);
 			}
 		}
 		return books;
 	}
-	
+
 	private List<Author> getAuthorsFromBookId(Connection conn, int bookId) throws SQLException{
 		List<Author> authors = new ArrayList<Author>();
 		PreparedStatement stmt1 = null;
 		ResultSet set1 = null;
-		
+
 		try{
 			stmt1 = conn.prepareStatement(
 					"SELECT author_id FROM authored "
-					+ "WHERE book_id=?");
+							+ "WHERE book_id=?");
 			stmt1.setInt(1, bookId);
 			set1 = stmt1.executeQuery();
-			
+
 			while(set1.next()){
 				Author author = getAuthorFromAuthorId(conn,set1.getInt(1));
 				if(author != null){
@@ -197,19 +547,19 @@ public class IDatabase {
 		}
 		return authors;
 	}
-	
+
 	private Author getAuthorFromAuthorId(Connection conn, int authorId) throws SQLException{
 		Author author = null;
 		PreparedStatement stmt1 = null;
 		ResultSet set1 = null;
-		
+
 		try{
 			stmt1 = conn.prepareStatement(
 					"SELECT author_lastname, author_firstname FROM authors "
-					+ "WHERE author_id=?");
+							+ "WHERE author_id=?");
 			stmt1.setInt(1, authorId);
 			set1 = stmt1.executeQuery();
-			
+
 			if(set1.next()){
 				author = new Author();
 				inflateAuthor(set1,author,1);
@@ -220,7 +570,7 @@ public class IDatabase {
 		}
 		return author;
 	}
-	
+
 	private int insertAuthor(Connection conn, Author author) throws SQLException{
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;
@@ -334,25 +684,77 @@ public class IDatabase {
 	}
 
 	private boolean insertAuthored(Connection conn, int authorId, int bookId) throws SQLException{
+		PreparedStatement stmt = null;
 		PreparedStatement stmt7 = null;
+		ResultSet set = null;
 		boolean success = false;
-		
+
 		try{
 			if(authorId > 0 && bookId > 0){
-				stmt7 = conn.prepareStatement(
-						"INSERT INTO authored(author_id, book_id) "
-								+ "VALUES (?,?) ");
+				stmt = conn.prepareStatement(
+						"SELECT * FROM authored "
+								+ "WHERE book_id = ? " 
+								+ "AND author_id = ? ");
+				stmt.setInt(1, bookId);
+				stmt.setInt(2,authorId);
+				set = stmt.executeQuery();
 
-				stmt7.setInt(1, authorId);
-				stmt7.setInt(2, bookId);
-				stmt7.executeUpdate();
+				if(!set.next()){
+					stmt7 = conn.prepareStatement(
+							"INSERT INTO authored(author_id, book_id) "
+									+ "VALUES (?,?) ");
 
+					stmt7.setInt(1, authorId);
+					stmt7.setInt(2, bookId);
+					stmt7.executeUpdate();
+				}
 				success = true;
 			}
 		}finally{
+			DBUtil.closeQuietly(stmt);
 			DBUtil.closeQuietly(stmt7);
+			DBUtil.closeQuietly(set);
 		}
 		return success;
+	}
+
+	private Book getBookFromBookId(Connection conn, int bookId) throws SQLException{
+		Book book = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		try{
+			stmt = conn.prepareStatement(
+					"SELECT title, isbn FROM books "
+					+ "WHERE book_id=?");
+			stmt.setInt(1, bookId);
+			set = stmt.executeQuery();
+			
+			if(set.next()){
+				book = inflateBook(set, 1);
+				book.setAuthor(getAuthorsFromBookId(conn, bookId));
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return book;
+	}
+	
+	private Account inflateAccount(ResultSet set, int index) throws SQLException{
+		Account account = new Account();
+		account.setUsername(set.getString(index++));
+		account.setPassword(set.getString(index++));
+		account.setLoginId(set.getInt(index++));
+		account.setName(set.getString(index++));
+		account.setEmail(set.getString(index++));
+		account.setPhoneNumber(set.getString(index++));
+		
+		if(set.getInt(index)==1)
+			account.lock();
+		else
+			account.unlock();
+		
+		return account;
 	}
 	
 	private int inflateAuthor(ResultSet set, Author author, int index) throws SQLException{
@@ -362,19 +764,68 @@ public class IDatabase {
 		return index;
 	}
 
-	private int inflateBook(ResultSet set, Book book, int index) throws SQLException{
+	private Book inflateBook(ResultSet set, int index) throws SQLException{
+		Book book = new Book();
 		book.setTitle(set.getString(index++));
 		book.setISBN(set.getString(index++));
-		return index;
+		return book;
 	}
+
+	/*
+	 * ------------------------------------CORE DATABASE FUNCTIONALITY METHODS------------------------------------------------------------
+	 */
+
+	private Connection connect() {
+		Connection conn = null;
+		try{
+			conn =  DriverManager.getConnection("jdbc:derby:../database/bookstore.db;create=true");	
+			conn.setAutoCommit(false);
+		} catch(SQLException e){
+			System.out.println(e.getSQLState());
+		}
+		return conn;
+	}
+
+	private<ReturnType> ReturnType doQueryLoop(Query<ReturnType> query) throws SQLException{
+		Connection conn = connect();
+
+		ReturnType ret = null;
+		int times = 0;
+		boolean done = false;
+		try{
+			while(!done && times < TIMEOUT){
+				try{
+					ret = query.query(conn);
+					conn.commit();
+					done = true;
+				}catch(SQLException e){
+					if (e.getSQLState() != null && e.getSQLState().equals("41000")) {
+						times++;
+					} else {
+						throw e;
+					}
+				}
+			}
+
+			if (!done) {
+				throw new SQLException("Query Failed, TIMEOUT. ");
+			}
+			return ret;
+		}finally{
+			DBUtil.closeQuietly(conn);
+		}
+	}
+
 	/*
 	 * --------------------------STATIC METHODS FOR MODIFING THE DATABASE OUTSIDE OF THE WEB APP------------------------------------
 	 */
 	private boolean createTables(Connection conn){
+		//Table Names: authors, books, authored, books_for_sale_by_user, accounts
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;
 		PreparedStatement stmt3 = null;
 		PreparedStatement stmt4 = null;
+		PreparedStatement stmt5 = null;
 		try {
 			stmt1 = conn.prepareStatement(
 					"CREATE TABLE authors (" +
@@ -408,12 +859,24 @@ public class IDatabase {
 			stmt4 = conn.prepareStatement(
 					"CREATE TABLE accounts ("+
 							" user_id integer primary key "+
-							"     generated always as identity (start with 1, increment by 1), "+
-							" username varchar(20), "+
-							" password varchar(20)"+
-							")"	
+							"     generated always as identity (start with 1, increment by 1), "
+							+" username varchar(20), "
+							+" password varchar(20), "
+							+" login_id integer, "
+							+" name varchar(30),"
+							+" email varchar(30), "
+							+" phone_number varchar(30), "
+							+" locked integer"
+							+")"	
 					);
 			stmt4.execute();
+
+			stmt5 = conn.prepareStatement(
+					"CREATE TABLE books_for_sale_by_user ("
+							+ " user_id integer, "
+							+ " book_id integer, "
+							+ " book_price varchar(6))");
+			stmt5.execute();
 
 			conn.commit();
 		} catch (SQLException e) {
@@ -428,14 +891,27 @@ public class IDatabase {
 		return true;
 	}
 
-	private boolean dropTable(Connection conn, String table){
+	private boolean dropTables(Connection conn){
 		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
+		PreparedStatement stmt3 = null;
+		PreparedStatement stmt4 = null;
+		PreparedStatement stmt5 = null;
+		
 
 		try{
-			stmt1 = conn.prepareStatement(
-					"DROP TABLE "+ table + " ");
-
+			stmt1 = conn.prepareStatement("DROP TABLE books");
+			stmt2 = conn.prepareStatement("DROP TABLE authors");
+			stmt3 = conn.prepareStatement("DROP TABLE accounts");
+			stmt4 = conn.prepareStatement("DROP TABLE authored");
+			stmt5 = conn.prepareStatement("DROP TABLE books_for_sale_by_user");
+			
 			stmt1.executeUpdate();
+			stmt2.executeUpdate();
+			stmt3.executeUpdate();
+			stmt4.executeUpdate();
+			stmt5.executeUpdate();
+						
 			conn.commit();
 		}catch(SQLException e){
 			System.out.println(e.getMessage());
@@ -456,6 +932,7 @@ public class IDatabase {
 
 		System.out.println("(C)reate table or (D)rop tables: ");
 		Scanner in = new Scanner(System.in);
+		
 		if(in.nextLine().toUpperCase().equals("C")){
 			System.out.println("----Creating Tables---- ");
 			if(db.createTables(conn)){
@@ -467,24 +944,12 @@ public class IDatabase {
 			}
 		}
 		else{
-			boolean done = false;
-			while(!done){
-				System.out.print("Enter name of table to be dropped: ");
-				in = new Scanner(System.in);
-				String table = in.nextLine();
-
-				System.out.println("----Preparing to Drop :"+table.toUpperCase()+"---- ");
-				if(db.dropTable(conn,table)){
-					System.out.println("----Successfully Dropped :"+table.toUpperCase()+"---- ");
-				}
-				else{
-					System.out.println("----Failed To Drop Table---- ");
-				}
-
-				in = new Scanner(System.in);
-				System.out.println("Drop another table? (Y/n): ");
-				if(in.nextLine().toUpperCase().equals("N"))
-					done = true;
+			System.out.println("----Preparing to Drop Tables---- ");
+			if(db.dropTables(conn)){
+				System.out.println("----Successfully Dropped Tables---- ");
+			}
+			else{
+				System.out.println("----Failed To Drop Table---- ");
 			}
 		}
 		in.close();

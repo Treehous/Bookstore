@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.SearchController;
+import src.Author;
 import src.Book;
 
 public class SearchServlet extends HttpServlet {
@@ -30,7 +31,29 @@ public class SearchServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		SearchController search = new SearchController();
-		List<Book> books = search.getBooksByISBN(req.getParameter("search"));
+		String searchBar = req.getParameter("search");
+		String byButton = req.getParameter("bybutton");
+		List<Book> books = null;
+		
+		if(searchBar != null && !searchBar.equals("")){
+			if(byButton.equals("Search by Title")){
+				books = search.getBooksByTitle(searchBar);
+			}
+			else if(byButton.equals("Search by Author Name")){
+				Author author = new Author(searchBar);
+				books = search.getBooksByAuthor(author);
+			}
+			else if(byButton.equals("Search by ISBN")){
+				books = search.getBooksByISBN(searchBar);
+			}
+			else {
+				books = search.getBooksByTitle(searchBar);
+			}
+		}
+		else{
+			books = search.getAllBooks();
+		}
+		
 		
 		req.setAttribute("books", books);
 		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
