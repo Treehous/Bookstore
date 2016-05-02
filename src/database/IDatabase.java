@@ -39,7 +39,7 @@ public class IDatabase {
 					ResultSet set = null;
 					try{
 						stmt = conn.prepareStatement(
-								"SELECT * FROM books" );
+								"SELECT * FROM books " );
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
 					}finally{
@@ -50,7 +50,34 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForAllBooks: "+e.getMessage());
+			return null;
+		}
+	}
+	
+	public List<Book> queryForAllBooksForSale(){
+		try{
+			return doQueryLoop(new Query<List<Book>>(){
+				@Override
+				public List<Book> query(Connection conn) throws SQLException{
+					List<Book> books = null;
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					try{
+						stmt = conn.prepareStatement(
+								"SELECT books.* FROM books, books_for_sale_by_user"
+								+ " WHERE books.book_id = books_for_sale_by_user.book_id " );
+						set = stmt.executeQuery();
+						books = getAllBooksFromResultSet(conn,set);
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return books;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForAllBooksForSale: "+e.getMessage());
 			return null;
 		}
 	}
@@ -66,8 +93,8 @@ public class IDatabase {
 					try{
 						stmt = conn.prepareStatement(
 								"SELECT * FROM books "
-										+ " WHERE title = ?" );
-						stmt.setString(1, title);
+										+ " WHERE title LIKE ?" );
+						stmt.setString(1, "%"+title+"%");
 						set = stmt.executeQuery();
 						books = getAllBooksFromResultSet(conn,set);
 					}finally{
@@ -78,7 +105,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForBooksByTitle: "+e.getMessage());
 			return null;
 		}
 	}
@@ -103,22 +130,22 @@ public class IDatabase {
 						stmt1 = conn.prepareStatement(
 								"SELECT book_id FROM authored "
 										+" WHERE author_id=?");
-						
+
 						stmt2 = conn.prepareStatement(
 								"SELECT * FROM books "
 										+ " WHERE book_id = ?");
-						
+
 						if(author.getAuthorsLastName() != null && !author.getAuthorsLastName().equals("")){
 							stmt = conn.prepareStatement(
 									"Select author_id FROM authors "
-											+ " WHERE author_lastname= %?%" );
+											+ " WHERE author_lastname LIKE ?" );
 							
-							stmt.setString(1, author.getAuthorsLastName());
+							stmt.setString(1, "%"+author.getAuthorsLastName()+"%");
+							System.out.println(author.getAuthorsLastName());
 							set = stmt.executeQuery();
-
 							if(set.next()){
 								int authorId = set.getInt(1);
-								
+
 								stmt1.setInt(1, authorId);
 								set1 = stmt1.executeQuery();
 
@@ -131,15 +158,15 @@ public class IDatabase {
 						}
 						if(author.getAuthorsFirstName() != null && !author.getAuthorsFirstName().equals("")){
 							stmt3 = conn.prepareStatement(
-									"Select author_id FROM authors "
-											+ " WHERE author_firstname= %?%" );
+									"SELECT author_id FROM authors "
+											+ " WHERE author_firstname LIKE ?" );
 							
-							stmt3.setString(1, author.getAuthorsFirstName());
+							stmt3.setString(1, "%"+author.getAuthorsFirstName()+"%");
 							set3 = stmt3.executeQuery();
-							
+
 							if(set3.next()){
 								int authorId = set3.getInt(1);
-								
+
 								stmt1.setInt(1, authorId);
 								set4 = stmt1.executeQuery();
 
@@ -171,7 +198,7 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForBooksByAuthor: "+e.getMessage());
 			return null;
 		}
 	}
@@ -200,8 +227,110 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("queryForBooksByISBN: "+e.getMessage());
 			return null;
+		}
+	}
+
+	public String queryForPasswordByUsername(String username){
+		try{
+			return doQueryLoop(new Query<String>(){
+				@Override 
+				public String query(Connection conn) throws SQLException{
+					String password = null;
+					password = getPasswordByUsername(conn,username);
+					return password;
+				}
+			});
+		} catch(SQLException e){
+			System.out.println("queryForPasswordByUsername: "+e.getMessage());
+			return null;
+		}
+	}
+	
+	public int queryForLoginIdByUsername(String username){
+		try{
+			return doQueryLoop(new Query<Integer>(){
+				@Override
+				public Integer query(Connection conn) throws SQLException{
+					PreparedStatement stmt = null;
+					ResultSet set = null;
+					int loginId = -1;
+					try{
+						stmt = conn.prepareStatement(
+								" SELECT login_id FROM accounts "
+								+ " WHERE username = ?");
+						stmt.setString(1, username);
+						set = stmt.executeQuery();
+						
+						if(set.next()){
+							loginId = set.getInt(1);
+						}
+					}finally{
+						DBUtil.closeQuietly(stmt);
+						DBUtil.closeQuietly(set);
+					}
+					return loginId;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForLoginIdByUsername: "+e.getMessage());
+			return -1;
+		}
+	}
+	
+	public boolean updateAccountByUsername(String username, Account account){
+		try{
+			return doQueryLoop(new Query<Boolean>(){
+				@Override 
+				public Boolean query(Connection conn)throws SQLException{
+					if(verifyAccountExistsByUsername(conn,username))
+						return updateAccountByUsername(conn, username,account);
+					
+					else 
+						return false;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("updateAccountByUsername: "+e.getMessage());
+			return false;
+		}
+	}
+	
+	public Account queryForUserAccountByUsername(String username){
+		try{
+			return doQueryLoop(new Query<Account>(){
+				@Override
+				public Account query(Connection conn) throws SQLException{
+					Account account = null;
+					if(verifyAccountExistsByUsername(conn, username)){
+						account = getAccountByUsername(conn,username);
+					}
+					return account;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("queryForUserAccountByUsername: "+e.getMessage());
+			return null;
+		}
+	}
+	
+	public boolean insertNewAccountIntoDatabase(Account account){
+		try{
+			return doQueryLoop(new Query<Boolean>(){
+				@Override
+				public Boolean query(Connection conn) throws SQLException{
+					boolean success = false;
+					if(!verifyAccountExistsByUsername(conn, account.getUsername())){
+						if(insertAccountIntoAccounts(conn,account));
+							success = true;
+					}
+					return success;
+				}
+			});
+		}catch(SQLException e){
+			System.out.println("insertNewAccountIntoDatabase: "+e.getMessage());
+			return false;
 		}
 	}
 
@@ -229,23 +358,183 @@ public class IDatabase {
 				}
 			});
 		}catch(SQLException e){
-			System.out.println(e.getMessage());
+			System.out.println("insertBookIntoDatabase: "+e.getMessage());
 			return false;
 		}
 	}
 	/*
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
+	
+	private boolean updateAccountByUsername(Connection conn, String username, Account account) throws SQLException{
+		boolean success = false;
+		PreparedStatement stmt = null;
+		try{
+			stmt = conn.prepareStatement(
+					"UPDATE accounts "
+					+ " SET username = ?, password = ?, login_id = ?, name = ?, email = ?, phone_number = ?, locked = ? "
+					+ " WHERE username = ? ");
+			stmt.setString(1, account.getUsername());
+			stmt.setString(2, account.getPassword());
+			stmt.setInt(3, account.getLoginId());
+			stmt.setString(4, account.getName());
+			stmt.setString(5, account.getEmail());
+			stmt.setString(6, account.getPhoneNumber());
+			
+			if(account.isLocked())
+				stmt.setInt(7, 1);
+			else
+				stmt.setInt(7, 0);
+			
+			stmt.setString(8, username);
+			stmt.executeUpdate();
+			success = true;
+		}finally{
+			DBUtil.closeQuietly(stmt);
+		}
+		return success;
+	}
+	
+	private Account getAccountByUsername(Connection conn, String username) throws SQLException{
+		Account account = null;
+		PreparedStatement stmt = null;
+		PreparedStatement stmt2 = null;
+		ResultSet set = null;
+		ResultSet set2 = null;
+		try{
+			stmt = conn.prepareStatement(
+					" SELECT * FROM accounts "
+					+" WHERE username=?");
+			stmt.setString(1, username);
+			
+			set = stmt.executeQuery();
+			
+			if(set.next()){
+				int userId = set.getInt(1);
+				account = inflateAccount(set,2);
+				
+				stmt2 = conn.prepareStatement(
+						" SELECT book_id FROM books_for_sale_by_user "
+						+ " WHERE user_id = ?");
+				stmt2.setInt(1, userId);
+			
+				set2 = stmt2.executeQuery();
+				
+				while(set2.next()){
+					account.addBookForSale(getBookFromBookId(conn,set2.getInt(1)));
+				}
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(stmt2);
+			DBUtil.closeQuietly(set);
+			DBUtil.closeQuietly(set2);
+		}
+		return account;
+	}
+	
+	private String getPasswordByUsername(Connection conn,String username) throws SQLException{
+		String password = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		try{
+			stmt = conn.prepareStatement(
+					" SELECT password FROM accounts WHERE username=? ");
+			stmt.setString(1,username);
+			set = stmt.executeQuery();
+			
+			if(set.next()){
+				password = set.getString(1);
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return password;
+	}
+	
+	private boolean insertAccountIntoAccounts(Connection conn, Account account) throws SQLException{
+		boolean success = false;
+		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
+		PreparedStatement stmt3 = null;
+		ResultSet set = null;
+		
+		try{
+			stmt1 = conn.prepareStatement(
+					"INSERT INTO accounts (username, password, login_id, name, email, phone_number, locked) "
+					+ " VALUES(?,?,?,?,?,?,?)");
+			stmt1.setString(1, account.getUsername());
+			stmt1.setString(2, account.getPassword());
+			stmt1.setInt(3, account.getLoginId());
+			stmt1.setString(4, account.getName());
+			stmt1.setString(5, account.getEmail());
+			stmt1.setString(6, account.getPhoneNumber());
+			
+			if(account.isLocked())
+				stmt1.setInt(7, 1);
+			else 
+				stmt1.setInt(7, 0);
+			
+			stmt1.executeUpdate();
+			
+			stmt2 = conn.prepareStatement(
+					"SELECT user_id FROM accounts "
+					+ " WHERE username = ?");
+			stmt2.setString(1, account.getUsername());
+			set = stmt2.executeQuery();
+			
+			if(set.next()){
+				int userId = set.getInt(1);
+				stmt3 = conn.prepareStatement(
+						" INSERT INTO books_for_sale_by_user (user_id, book_id) "
+						+ " VALUES(?,?) ");
+				for(Book book: account.getBooksForSale()){
+					int bookId = insertBook(conn, book); // watch this statement when running??
+					stmt3.setInt(1, userId);
+					stmt3.setInt(2, bookId);
+					stmt3.executeUpdate();
+				}
+				success = true;
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt1);
+			DBUtil.closeQuietly(stmt2);
+			DBUtil.closeQuietly(stmt3);
+			DBUtil.closeQuietly(set);
+		}
+		return success;
+	}
+	
+	private boolean verifyAccountExistsByUsername(Connection conn, String username) throws SQLException{
+		boolean registered = false;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		
+		try{
+			stmt = conn.prepareStatement(
+					"SELECT * from accounts WHERE username=? ");
+			stmt.setString(1, username);
+			set = stmt.executeQuery();
+			if(set.next()){
+				registered = true;
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return registered;
+	}
 
 	private List<Book> getAllBooksFromResultSet(Connection conn,ResultSet set) throws SQLException{
 		//from a result set selected from the books table returning all rows compile a list of books
 		ArrayList<Book> books = new ArrayList<Book>();
 		if(set != null){
 			while(set.next()){
-				Book book = new Book();
+				Book book = null;
 				int index = 1;
 				int bookId = set.getInt(index++);
-				inflateBook(set,book,index);
+				book = inflateBook(set,index);
 				book.setAuthor(getAuthorsFromBookId(conn,bookId));
 				books.add(book);
 			}
@@ -448,6 +737,45 @@ public class IDatabase {
 		return success;
 	}
 
+	private Book getBookFromBookId(Connection conn, int bookId) throws SQLException{
+		Book book = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		try{
+			stmt = conn.prepareStatement(
+					"SELECT title, isbn FROM books "
+					+ "WHERE book_id=?");
+			stmt.setInt(1, bookId);
+			set = stmt.executeQuery();
+			
+			if(set.next()){
+				book = inflateBook(set, 1);
+				book.setAuthor(getAuthorsFromBookId(conn, bookId));
+			}
+		}finally{
+			DBUtil.closeQuietly(stmt);
+			DBUtil.closeQuietly(set);
+		}
+		return book;
+	}
+	
+	private Account inflateAccount(ResultSet set, int index) throws SQLException{
+		Account account = new Account();
+		account.setUsername(set.getString(index++));
+		account.setPassword(set.getString(index++));
+		account.setLoginId(set.getInt(index++));
+		account.setName(set.getString(index++));
+		account.setEmail(set.getString(index++));
+		account.setPhoneNumber(set.getString(index++));
+		
+		if(set.getInt(index)==1)
+			account.lock();
+		else
+			account.unlock();
+		
+		return account;
+	}
+	
 	private int inflateAuthor(ResultSet set, Author author, int index) throws SQLException{
 		String last = set.getString(index++);
 		String first = set.getString(index++);
@@ -455,10 +783,11 @@ public class IDatabase {
 		return index;
 	}
 
-	private int inflateBook(ResultSet set, Book book, int index) throws SQLException{
+	private Book inflateBook(ResultSet set, int index) throws SQLException{
+		Book book = new Book();
 		book.setTitle(set.getString(index++));
 		book.setISBN(set.getString(index++));
-		return index;
+		return book;
 	}
 
 	/*
@@ -510,6 +839,7 @@ public class IDatabase {
 	 * --------------------------STATIC METHODS FOR MODIFING THE DATABASE OUTSIDE OF THE WEB APP------------------------------------
 	 */
 	private boolean createTables(Connection conn){
+		//Table Names: authors, books, authored, books_for_sale_by_user, accounts
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;
 		PreparedStatement stmt3 = null;
@@ -554,8 +884,8 @@ public class IDatabase {
 							+" login_id integer, "
 							+" name varchar(30),"
 							+" email varchar(30), "
-							+" phone_number varchar(30) "
-							+ " locked tinyint(2)"
+							+" phone_number varchar(30), "
+							+" locked integer"
 							+")"	
 					);
 			stmt4.execute();
@@ -580,14 +910,27 @@ public class IDatabase {
 		return true;
 	}
 
-	private boolean dropTable(Connection conn, String table){
+	private boolean dropTables(Connection conn){
 		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
+		PreparedStatement stmt3 = null;
+		PreparedStatement stmt4 = null;
+		PreparedStatement stmt5 = null;
+		
 
 		try{
-			stmt1 = conn.prepareStatement(
-					"DROP TABLE "+ table + " ");
-
+			stmt1 = conn.prepareStatement("DROP TABLE books");
+			stmt2 = conn.prepareStatement("DROP TABLE authors");
+			stmt3 = conn.prepareStatement("DROP TABLE accounts");
+			stmt4 = conn.prepareStatement("DROP TABLE authored");
+			stmt5 = conn.prepareStatement("DROP TABLE books_for_sale_by_user");
+			
 			stmt1.executeUpdate();
+			stmt2.executeUpdate();
+			stmt3.executeUpdate();
+			stmt4.executeUpdate();
+			stmt5.executeUpdate();
+						
 			conn.commit();
 		}catch(SQLException e){
 			System.out.println(e.getMessage());
@@ -598,7 +941,6 @@ public class IDatabase {
 		return true;
 	}
 
-	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		System.out.println("----Loading Database Driver---- ");
 		IDatabase db = DatabaseProvider.getDatabase();
@@ -608,6 +950,7 @@ public class IDatabase {
 
 		System.out.println("(C)reate table or (D)rop tables: ");
 		Scanner in = new Scanner(System.in);
+		
 		if(in.nextLine().toUpperCase().equals("C")){
 			System.out.println("----Creating Tables---- ");
 			if(db.createTables(conn)){
@@ -619,24 +962,12 @@ public class IDatabase {
 			}
 		}
 		else{
-			boolean done = false;
-			while(!done){
-				System.out.print("Enter name of table to be dropped: ");
-				in = new Scanner(System.in);
-				String table = in.nextLine();
-
-				System.out.println("----Preparing to Drop :"+table.toUpperCase()+"---- ");
-				if(db.dropTable(conn,table)){
-					System.out.println("----Successfully Dropped :"+table.toUpperCase()+"---- ");
-				}
-				else{
-					System.out.println("----Failed To Drop Table---- ");
-				}
-
-				in = new Scanner(System.in);
-				System.out.println("Drop another table? (Y/n): ");
-				if(in.nextLine().toUpperCase().equals("N"))
-					done = true;
+			System.out.println("----Preparing to Drop Tables---- ");
+			if(db.dropTables(conn)){
+				System.out.println("----Successfully Dropped Tables---- ");
+			}
+			else{
+				System.out.println("----Failed To Drop Table---- ");
 			}
 		}
 		in.close();

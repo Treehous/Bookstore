@@ -11,20 +11,23 @@
 		<table>
 			<tr>
 				<td>
-					<div><img src="res/logo.gif.png" alt="YCP"></img></div>
+					<form action="${pageContext.servletContext.contextPath}/home" method="get">
+						<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress"/>
+					</form>
 					
 					<div>
-						<form action="${pageContext.servletContext.contextPath}/enterBook" method="post">
+						<form action="${pageContext.servletContext.contextPath}/enter-book" method="post">
 							<div> <input type="text" name="title" placeholder="Title"> </div>
 							<div> <input type="text" name="author" placeholder="Author"></div>
 							<div> <input type="text" name="isbn" placeholder="ISBN"></div>
+							<div> <input type="text" name="price" placeholder="Price"></div>
 							<div> <input type="submit" name="submit" value="enterBook"> </div>
 						</form>
 					</div>
 				</td>
 				
 				<td>
-					<form action="${pageContext.servletContext.contextPath}/login" method="post">
+					<form action="${pageContext.servletContext.contextPath}/create-login" method="post">
   						<input name="buttonPress" type="submit" value="login" />
 					</form>		
 				</td>
@@ -39,12 +42,6 @@
 		
 		<div class="inlineImage">
 			<img src="res/spartan.gif" alt="Smarty McSpartan"></img>
-		</div>
-		
-		<div>
-			<form action="${pageContext.servletContext.contextPath}/search" method="get">
-				<input name="toSearch" type="submit" value="Search For A Book"/>
-			</form>
 		</div>
 	</body>
 </html>

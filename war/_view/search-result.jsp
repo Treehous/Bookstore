@@ -26,7 +26,7 @@
   									<input name="bybutton" type="submit" value="Search by Title" />
 								</td>
 								<td>
-  									<input name="bybutton" type="submit" value="Search by Author Last Name" />
+  									<input name="bybutton" type="submit" value="Search by Author" />
 								</td>
 								<td>
 									<input name="bybutton" type="submit" value="Search by ISBN" />

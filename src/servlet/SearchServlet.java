@@ -23,7 +23,7 @@ public class SearchServlet extends HttpServlet {
 		List<Book> books = search.getAllBooks();
 		
 		req.setAttribute("books", books);
-		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
+		req.getRequestDispatcher("/_view/search-result.jsp").forward(req, resp);
 	}
 	
 	@Override
@@ -39,7 +39,7 @@ public class SearchServlet extends HttpServlet {
 			if(byButton.equals("Search by Title")){
 				books = search.getBooksByTitle(searchBar);
 			}
-			else if(byButton.equals("Search by Author Last Name")){
+			else if(byButton.equals("Search by Author")){
 				Author author = new Author(searchBar);
 				books = search.getBooksByAuthor(author);
 			}
@@ -54,9 +54,8 @@ public class SearchServlet extends HttpServlet {
 			books = search.getAllBooks();
 		}
 		
-		
 		req.setAttribute("books", books);
-		req.getRequestDispatcher("/_view/searchResult.jsp").forward(req, resp);
+		req.getRequestDispatcher("/_view/search-result.jsp").forward(req, resp);
 	}
 
 }
