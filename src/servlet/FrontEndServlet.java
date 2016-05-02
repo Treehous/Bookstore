@@ -16,40 +16,40 @@ public class FrontEndServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In the FrontEnd Get servlet");
-
 		//validate login
-		Boolean loggedin = ObjectHandler.castObject(req.getAttribute("loggedin"));
-		if(loggedin != null){
-			if(loggedin){
-				String user = ObjectHandler.castObject(req.getSession().getAttribute("username"));
-				Integer loginId = ObjectHandler.castObject(req.getSession().getAttribute("login_id"));
-				LoginController login = new LoginController();
-				loginId = login.validateLogin(user, loginId);
+		boolean loggedin = false;
+		String user = ObjectHandler.castObject(req.getSession().getAttribute("username"));
+		if(user != null){
+			Integer loginId = ObjectHandler.castObject(req.getSession().getAttribute("login_id"));
+			LoginController login = new LoginController();
+			loginId = login.validateLogin(user, loginId);
+			if(loginId >= 0){
 				req.getSession().setAttribute("login_id", loginId);
+				loggedin = true;
 				req.setAttribute("account", login.returnAccountForUsername(user));
 			}
 		}
+		req.setAttribute("loggedin", loggedin);
 		req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In the FrontEnd Post servlet");
-
 		//validate login
-		Boolean loggedin = ObjectHandler.castObject(req.getAttribute("loggedin"));
-		if(loggedin != null){
-			if(loggedin){
+				boolean loggedin = false;
 				String user = ObjectHandler.castObject(req.getSession().getAttribute("username"));
-				Integer loginId = ObjectHandler.castObject(req.getSession().getAttribute("login_id"));
-				LoginController login = new LoginController();
-				loginId = login.validateLogin(user, loginId);
-				req.getSession().setAttribute("login_id", loginId);
-				req.setAttribute("account", login.returnAccountForUsername(user));
-			}
-		}
-		req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
+				if(user != null){
+					Integer loginId = ObjectHandler.castObject(req.getSession().getAttribute("login_id"));
+					LoginController login = new LoginController();
+					loginId = login.validateLogin(user, loginId);
+					if(loginId >= 0){
+						req.getSession().setAttribute("login_id", loginId);
+						loggedin = true;
+						req.setAttribute("account", login.returnAccountForUsername(user));
+					}
+				}
+				req.setAttribute("loggedin", loggedin);
+				req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
 	}
 }

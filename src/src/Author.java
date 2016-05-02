@@ -30,7 +30,7 @@ public class Author {
 
 		int index = s.indexOf(' ');
 
-		if(index == -1){
+		if(index < 0){
 			last = s;
 		}
 		else {

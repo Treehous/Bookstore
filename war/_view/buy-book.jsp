@@ -16,18 +16,19 @@
 					</form>
 					
 					<div>
-						<form action="${pageContext.servletContext.contextPath}/enter-book" method="post">
+						<form action="${pageContext.servletContext.contextPath}/buy-book" method="post">
 							<div> <input type="text" name="title" placeholder="Title"> </div>
 							<div> <input type="text" name="author" placeholder="Author"></div>
 							<div> <input type="text" name="isbn" placeholder="ISBN"></div>
 							<div> <input type="text" name="price" placeholder="Price"></div>
-							<div> <input type="submit" name="submit" value="enterBook"> </div>
+							<div> ${bookForSale.account.username}</div>
+							<div> <input type="submit" name="submit" value="Buy Book"> </div>
 						</form>
 					</div>
 				</td>
 				
 				<td>
-					<c:choose>
+						<c:choose>
 				<c:when test="${loggedin}">
 					<div> 
 						<table>
@@ -80,9 +81,10 @@
   						</div>
 					</form>
 				</c:otherwise>
-				</c:choose>		
+				</c:choose>	
 				</td>
 		</table>
+		
 		<c:if test="${! empty errorMessage}">
 			<div>${errorMessage}</div>
 		</c:if>
@@ -90,9 +92,5 @@
 		<c:if test="${! empty successMessage}">
 			<div>${successMessage}</div>
 		</c:if>
-		
-		<div class="inlineImage">
-			<img src="res/spartan.gif" alt="Smarty McSpartan"></img>
-		</div>
 	</body>
 </html>

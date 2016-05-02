@@ -53,7 +53,7 @@ public class LoginServlet extends HttpServlet {
 				else {
 					int loginId = login.loginUser(username, password);
 					if(loginId >= 0){
-						req.getSession(true).setAttribute("username", username);
+						req.getSession().setAttribute("username", username);
 						req.getSession().setAttribute("login_id", loginId);
 						loggedin = true;
 						req.setAttribute("loggedin", loggedin);
