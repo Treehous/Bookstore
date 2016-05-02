@@ -238,7 +238,7 @@ public class IDatabase {
 				@Override 
 				public String query(Connection conn) throws SQLException{
 					String password = null;
-					password = getUserPassword(conn,username);
+					password = getPasswordByUsername(conn,username);
 					return password;
 				}
 			});
@@ -279,30 +279,20 @@ public class IDatabase {
 		}
 	}
 	
-	public boolean updateLoginIdByUsername(String username, int loginId){
+	public boolean updateAccountByUsername(String username, Account account){
 		try{
 			return doQueryLoop(new Query<Boolean>(){
 				@Override 
 				public Boolean query(Connection conn)throws SQLException{
-					boolean success = false;
-					PreparedStatement stmt = null;
+					if(verifyAccountExistsByUsername(conn,username))
+						return updateAccountByUsername(conn, username,account);
 					
-					try{
-						stmt = conn.prepareStatement(
-								"UPDATE accounts "
-								+ " SET login_id = ? "
-								+ " WHERE username = ? ");
-						stmt.setInt(1, loginId);
-						stmt.setString(2, username);
-						success = true;
-					}finally{
-						DBUtil.closeQuietly(stmt);
-					}
-					return success;
+					else 
+						return false;
 				}
 			});
 		}catch(SQLException e){
-			System.out.println("updateLoginIdByUsername: "+e.getMessage());
+			System.out.println("updateAccountByUsername: "+e.getMessage());
 			return false;
 		}
 	}
@@ -313,7 +303,7 @@ public class IDatabase {
 				@Override
 				public Account query(Connection conn) throws SQLException{
 					Account account = null;
-					if(userAccountExists(conn, username)){
+					if(verifyAccountExistsByUsername(conn, username)){
 						account = getAccountByUsername(conn,username);
 					}
 					return account;
@@ -331,8 +321,8 @@ public class IDatabase {
 				@Override
 				public Boolean query(Connection conn) throws SQLException{
 					boolean success = false;
-					if(!userAccountExists(conn, account.getUsername())){
-						if(insertUserAccount(conn,account));
+					if(!verifyAccountExistsByUsername(conn, account.getUsername())){
+						if(insertAccountIntoAccounts(conn,account));
 							success = true;
 					}
 					return success;
@@ -376,6 +366,35 @@ public class IDatabase {
 	 * -----------------------HELPER METHODS FOR STREAMLINING SQL QUERIES----------------------------------------------------
 	 */
 	
+	private boolean updateAccountByUsername(Connection conn, String username, Account account) throws SQLException{
+		boolean success = false;
+		PreparedStatement stmt = null;
+		try{
+			stmt = conn.prepareStatement(
+					"UPDATE accounts "
+					+ " SET username = ?, password = ?, login_id = ?, name = ?, email = ?, phone_number = ?, locked = ? "
+					+ " WHERE username = ? ");
+			stmt.setString(1, account.getUsername());
+			stmt.setString(2, account.getPassword());
+			stmt.setInt(3, account.getLoginId());
+			stmt.setString(4, account.getName());
+			stmt.setString(5, account.getEmail());
+			stmt.setString(6, account.getPhoneNumber());
+			
+			if(account.isLocked())
+				stmt.setInt(7, 1);
+			else
+				stmt.setInt(7, 0);
+			
+			stmt.setString(8, username);
+			stmt.executeUpdate();
+			success = true;
+		}finally{
+			DBUtil.closeQuietly(stmt);
+		}
+		return success;
+	}
+	
 	private Account getAccountByUsername(Connection conn, String username) throws SQLException{
 		Account account = null;
 		PreparedStatement stmt = null;
@@ -414,7 +433,7 @@ public class IDatabase {
 		return account;
 	}
 	
-	private String getUserPassword(Connection conn,String username) throws SQLException{
+	private String getPasswordByUsername(Connection conn,String username) throws SQLException{
 		String password = null;
 		PreparedStatement stmt = null;
 		ResultSet set = null;
@@ -434,7 +453,7 @@ public class IDatabase {
 		return password;
 	}
 	
-	private boolean insertUserAccount(Connection conn, Account account) throws SQLException{
+	private boolean insertAccountIntoAccounts(Connection conn, Account account) throws SQLException{
 		boolean success = false;
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;
@@ -487,7 +506,7 @@ public class IDatabase {
 		return success;
 	}
 	
-	private boolean userAccountExists(Connection conn, String username) throws SQLException{
+	private boolean verifyAccountExistsByUsername(Connection conn, String username) throws SQLException{
 		boolean registered = false;
 		PreparedStatement stmt = null;
 		ResultSet set = null;
@@ -922,7 +941,6 @@ public class IDatabase {
 		return true;
 	}
 
-	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		System.out.println("----Loading Database Driver---- ");
 		IDatabase db = DatabaseProvider.getDatabase();

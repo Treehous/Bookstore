@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.CreateLoginController;
+import controller.LoginController;
 import src.Account;
 
 public class CreateLoginServlet extends HttpServlet {
@@ -17,16 +18,43 @@ public class CreateLoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		System.out.println("In the Login Get servlet");
+		
+		String username = req.getParameter("Username");
+		String password = req.getParameter("Password");
 		String button = req.getParameter("buttonPress");
+		
 		if(button != null){
-			if(button.toUpperCase().equals("CREATE")){
-				req.setAttribute("username", req.getParameter("Username"));
-				req.setAttribute("password", req.getParameter("Password"));
+			if(button.toLowerCase().equals("create")){
+				req.setAttribute("username", username);
+				req.setAttribute("password", password);
 				req.getRequestDispatcher("/_view/create-login.jsp").forward(req, resp);
 			}
-			else if(button.toUpperCase().equals("LOGIN")){
-				//TODO: login
-				req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
+			else if(button.toLowerCase().equals("login")){
+				boolean loggedin = false;
+				String errorMessage = null;
+				LoginController login = new LoginController();
+				int loginId = login.loginUser(username, password);
+				
+				if(loginId>=0){
+					req.getSession(true).setAttribute("username", username);
+					req.getSession().setAttribute("login_id", loginId);
+					loggedin = true;
+					req.setAttribute("loggedin", loggedin);
+				}
+				else{
+					errorMessage = "Invalid username or password, please try again.";
+				}
+				
+				if(loggedin){
+					
+					req.setAttribute("account", login.returnAccountForUsername(username));
+					req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
+				}
+				else{
+					req.setAttribute("username",username);
+					req.setAttribute("errorMessage", errorMessage);
+					req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
+				}
 			}
 			else{
 				req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
@@ -58,31 +86,38 @@ public class CreateLoginServlet extends HttpServlet {
 		email = req.getParameter("email");
 		phone = req.getParameter("phone");
 
-		if(user.equals("") || user == null){
+		if("".equals(user) || user == null){
 			errorMessage = "Invalid Username, please re-enter";
+			user = null;
 		}
-		else if(pass1.equals("") || pass1 == null){
+		else if("".equals(pass1) || pass1 == null){
 			errorMessage = "Invalid Password, please re-enter";
+			pass1 = null;
 		}
 
-		else if(pass2.equals("") || pass2 == null){
+		else if("".equals(pass2) || pass2 == null){
 			errorMessage = "Passwords don't match, please re-enter";
+			pass2 = null;
 		}
 
 		else if(!pass2.equals(pass1)){
 			errorMessage = "Passwords don't match, please re-enter";
+			pass2 = null;
 		}
 
-		else if(name.equals("") || name == null){
+		else if("".equals(name) || name == null){
 			errorMessage = "Please re-enter Name";
+			name = null;
 		}
 
-		else if(email.equals("") || email == null){
+		else if("".equals(email) || email == null){
 			errorMessage = "Please re-enter Email";
+			email = null;
 		}
 
-		else if(phone.equals("") || phone == null){
+		else if("".equals(phone) || phone == null){
 			errorMessage = "Please re-enter Phone Number";
+			phone = null;
 		}
 		else{
 			Account account = new Account(user,pass1,-1,name, email, phone, false,null);
@@ -94,6 +129,7 @@ public class CreateLoginServlet extends HttpServlet {
 				req.getSession().setAttribute("login_id", loginId);
 				loggedin = true;
 				req.setAttribute("loggedin", loggedin);
+				req.setAttribute("account", account);
 			}
 			else{
 				errorMessage = "Failed to Create Account, username probably already in use.";

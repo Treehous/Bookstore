@@ -15,7 +15,7 @@ public class Account {
 	private List<Book> books;
 	
 	public Account(){
-		
+		this.books = new ArrayList<Book>();
 	}
 	
 	public Account(String user, String pass, int id, String name, String email, String phone, boolean lock, List<Book> books){
@@ -33,6 +33,10 @@ public class Account {
 			this.books = books;
 		}
 	}
+	
+	/*
+	 * ------------------------GETTERS AND SETTERS---------------------------------
+	 */
 	
 	public String getUsername(){
 		return this.username;
@@ -64,6 +68,10 @@ public class Account {
 	
 	public List<Book> getBooksForSale(){
 		return this.books;
+	}
+	
+	public int getNumberOfBooksForSale(){
+		return this.books.size();
 	}
 	
 	public boolean setUsername(String user){
@@ -116,6 +124,10 @@ public class Account {
 		this.locked = false;
 	}
 	
+	/*
+	 * -------------------------HELPER METHODS----------------------------
+	 */
+	
 	public void addBookForSale(Book book){
 		this.books.add(book);
 	}
@@ -129,6 +141,15 @@ public class Account {
 		this.loginId = r.nextInt(99999999);
 		return this.loginId;
 	}
+	
+	public int resetLoginId(){
+		this.loginId = -1;
+		return this.loginId;
+	}
+	
+	/*
+	 * -----------------------VALIDATION METHODS----------------------------
+	 */
 	
 	//TODO
 	private boolean validatePhoneNumber(String phone){

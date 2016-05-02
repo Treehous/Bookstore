@@ -9,7 +9,9 @@
 
 
 	<body>
-		<div><img src="res/logo.gif.png" alt="YCP"></img></div>
+		<form action="${pageContext.servletContext.contextPath}/home" method="get">
+			<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress"/>
+		</form>
 					
 		<div>
 			<form action="${pageContext.servletContext.contextPath}/create-login" method="post">
