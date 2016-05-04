@@ -36,7 +36,7 @@ public class CreateLoginServlet extends HttpServlet {
 				int loginId = login.loginUser(username, password);
 				
 				if(loginId>=0){
-					req.getSession(true).setAttribute("username", username);
+					req.getSession().setAttribute("username", username);
 					req.getSession().setAttribute("login_id", loginId);
 					loggedin = true;
 					req.setAttribute("loggedin", loggedin);
@@ -125,7 +125,7 @@ public class CreateLoginServlet extends HttpServlet {
 			CreateLoginController controller = new CreateLoginController();
 
 			if(controller.createAccount(account)){
-				req.getSession(true).setAttribute("username", user);
+				req.getSession().setAttribute("username", user);
 				req.getSession().setAttribute("login_id", loginId);
 				loggedin = true;
 				req.setAttribute("loggedin", loggedin);
