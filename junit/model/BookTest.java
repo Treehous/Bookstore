@@ -17,7 +17,7 @@ public class BookTest {
 		l1.add("Dr. Suess");
 		
 		List<String> l2 = new ArrayList<String>();
-		l2.add("Socrates");
+		l2.add("Plato");
 		l2.add("Gerald H. J. von Miller");
 		
 		
@@ -35,9 +35,9 @@ public class BookTest {
 	
 	@Test
 	public void getAuthorTest(){
-		assertEquals(b1.getAuthors().get(0),"Suess, Dr.");
-		assertEquals(b2.getAuthors().get(0),"Socrates");
-		assertEquals(b2.getAuthors().get(1),"H. J. von Miller, Gerald");
+		assertEquals(b1.getAuthors().get(0).getAuthorsFullName(),"Suess, Dr.");
+		assertEquals(b2.getAuthors().get(0).getAuthorsFullName(),"Plato");
+		assertEquals(b2.getAuthors().get(1).getAuthorsFullName(),"H. J. von Miller, Gerald");
 		assertEquals(b3.getAuthors().isEmpty(),true);
 	}
 	
