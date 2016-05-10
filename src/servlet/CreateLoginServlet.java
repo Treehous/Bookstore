@@ -17,7 +17,6 @@ public class CreateLoginServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In the Login Get servlet");
 		
 		String username = req.getParameter("Username");
 		String password = req.getParameter("Password");
@@ -68,7 +67,6 @@ public class CreateLoginServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In the Login Post servlet");
 
 		String user = null;
 		String pass1 = null;

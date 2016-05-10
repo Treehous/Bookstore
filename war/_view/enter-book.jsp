@@ -55,7 +55,7 @@
 									</form>
 								</td>
 								<td>
-									<form action="${pageContext.servletContext.contextPath}/account-page" method = "get">
+									<form action="${pageContext.servletContext.contextPath}/update-account" method = "get">
 										<input name="buttonPress" type="submit" value="Edit Account">
 									</form>
 								</td>

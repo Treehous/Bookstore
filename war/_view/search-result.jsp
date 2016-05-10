@@ -12,7 +12,9 @@
 		<table>
 			<tr>
 				<td>
-					<div><img src="res/logo.gif.png" alt="YCP"></img></div>
+					<form action="${pageContext.servletContext.contextPath}/home" method="post">
+							<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress" value="home"/>
+						</form>
 					
 					<form action="${pageContext.servletContext.contextPath}/search" method="post">
 						<div>
@@ -89,7 +91,7 @@
 									</form>
 								</td>
 								<td>
-									<form action="${pageContext.servletContext.contextPath}/account-page" method = "get">
+									<form action="${pageContext.servletContext.contextPath}/update-account" method = "get">
 										<input name="buttonPress" type="submit" value="Edit Account">
 									</form>
 								</td>
