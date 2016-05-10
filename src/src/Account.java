@@ -12,13 +12,13 @@ public class Account {
 	private String email = null;
 	private String phoneNumber = null;
 	private boolean locked = false;
-	private List<Book> books;
+	private List<BookForSale> books;
 	
 	public Account(){
-		
+		this.books = new ArrayList<BookForSale>();
 	}
 	
-	public Account(String user, String pass, int id, String name, String email, String phone, boolean lock, List<Book> books){
+	public Account(String user, String pass, int id, String name, String email, String phone, boolean lock, List<BookForSale> books){
 		this.username = user;
 		this.password = pass;
 		this.loginId = id;
@@ -27,12 +27,16 @@ public class Account {
 		this.phoneNumber = phone;
 		this.locked = lock;
 		if(books == null){
-			this.books = new ArrayList<Book>();
+			this.books = new ArrayList<BookForSale>();
 		}
 		else {
 			this.books = books;
 		}
 	}
+	
+	/*
+	 * ------------------------GETTERS AND SETTERS---------------------------------
+	 */
 	
 	public String getUsername(){
 		return this.username;
@@ -62,8 +66,12 @@ public class Account {
 		return this.locked;
 	}
 	
-	public List<Book> getBooksForSale(){
+	public List<BookForSale> getBooksForSale(){
 		return this.books;
+	}
+	
+	public int getNumberOfBooksForSale(){
+		return this.books.size();
 	}
 	
 	public boolean setUsername(String user){
@@ -116,11 +124,15 @@ public class Account {
 		this.locked = false;
 	}
 	
-	public void addBookForSale(Book book){
+	/*
+	 * -------------------------HELPER METHODS----------------------------
+	 */
+	
+	public void addBookForSale(BookForSale book){
 		this.books.add(book);
 	}
 	
-	public void addAllBooksForSale(List<Book> books){
+	public void addAllBooksForSale(List<BookForSale> books){
 		this.books.addAll(books);
 	}
 	
@@ -129,6 +141,15 @@ public class Account {
 		this.loginId = r.nextInt(99999999);
 		return this.loginId;
 	}
+	
+	public int resetLoginId(){
+		this.loginId = -1;
+		return this.loginId;
+	}
+	
+	/*
+	 * -----------------------VALIDATION METHODS----------------------------
+	 */
 	
 	//TODO
 	private boolean validatePhoneNumber(String phone){

@@ -30,8 +30,19 @@
   	<servlet-name>LoginServlet</servlet-name>
   	<servlet-class>servlet.LoginServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+  	<servlet-name>BuyBookServlet</servlet-name>
+  	<servlet-class>servlet.BuyBookServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+  	<servlet-name>UpdateAccountServlet</servlet-name>
+  	<servlet-class>servlet.UpdateAccountServlet</servlet-class>
+  </servlet>
 
   <!-- Servlet mappings -->
+  
   <servlet-mapping>
     <servlet-name>FrontEndServlet</servlet-name>
     <url-pattern>/home</url-pattern>
@@ -57,9 +68,15 @@
   	<url-pattern>/login</url-pattern>
   </servlet-mapping>
   
-  <!-- AJAX servlets. -->
+ <servlet-mapping>
+  	<servlet-name>BuyBookServlet</servlet-name>
+  	<url-pattern>/buy-book</url-pattern>
+ </servlet-mapping>
  
-  <!--  AJAX servlet mappings. -->
+  <servlet-mapping>
+  	<servlet-name>UpdateAccountServlet</servlet-name>
+  	<url-pattern>/update-account</url-pattern>
+ </servlet-mapping>
   
   <!--  Welcome Files -->
   <welcome-file-list>

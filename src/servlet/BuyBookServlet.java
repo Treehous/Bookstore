@@ -9,30 +9,26 @@ import javax.servlet.http.HttpServletResponse;
 
 import controller.LoginController;
 
-public class FrontEndServlet extends HttpServlet {
+public class BuyBookServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		LoginController login = new LoginController();
+		
 		if(login.handleLoginCheck(req)){
-			req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
+			req.getRequestDispatcher("/_view/buy-book.jsp").forward(req, resp);
 		}
 		else{
-			req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
+			req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
 		}
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		LoginController login = new LoginController();
-		if(login.handleLoginCheck(req)){
-			req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
-		}
-		else{
-			req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);
-		}
+
+
 	}
 }

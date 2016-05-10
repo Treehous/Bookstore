@@ -9,45 +9,26 @@
 
 	<body>
 		<table>
-			<tr> 
-			<td>
-			<table>
-				<tr>	
-					<td>
-						<form action="${pageContext.servletContext.contextPath}/home" method="post">
-							<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress" value="home"/>
+			<tr>
+				<td>
+					<form action="${pageContext.servletContext.contextPath}/home" method="get">
+						<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress"/>
+					</form>
+					
+					<div>
+						<form action="${pageContext.servletContext.contextPath}/buy-book" method="post">
+							<div> <input type="text" name="title" placeholder="Title"> </div>
+							<div> <input type="text" name="author" placeholder="Author"></div>
+							<div> <input type="text" name="isbn" placeholder="ISBN"></div>
+							<div> <input type="text" name="price" placeholder="Price"></div>
+							<div> ${bookForSale.account.username}</div>
+							<div> <input type="submit" name="submit" value="Buy Book"> </div>
 						</form>
-					</td>
-				</tr>
-				<tr>
-					<td>  
-						<form action="${pageContext.servletContext.contextPath}/search" method="post">
-							<div>
-								<table>
-									<tr>
-										<input type="text" name="search" placeholder="Search by title, author, ISBN...">
-									</tr>
-									<tr>
-										<td>
-  											<input name="bybutton" type="submit" value="Search by Title" />
-										</td>
-										<td>
-  											<input name="bybutton" type="submit" value="Search by Author" />
-										</td>
-										<td>
-											<input name="bybutton" type="submit" value="Search by ISBN" />
-										</td>
-									</tr>
-								</table>
-							</div>	
-						</form>
-					</td>
-				</tr>
-			</table>
-			</td>
-			
-			<td>
-				<c:choose>
+					</div>
+				</td>
+				
+				<td>
+						<c:choose>
 				<c:when test="${loggedin}">
 					<div> 
 						<table>
@@ -101,12 +82,15 @@
 					</form>
 				</c:otherwise>
 				</c:choose>	
-			</td>
-			</tr>
+				</td>
 		</table>
 		
-		<div class="inlineImage">
-			<img src="res/spartan.gif" alt="Smarty McSpartan"></img>
-		</div>
+		<c:if test="${! empty errorMessage}">
+			<div>${errorMessage}</div>
+		</c:if>
+		
+		<c:if test="${! empty successMessage}">
+			<div>${successMessage}</div>
+		</c:if>
 	</body>
 </html>
