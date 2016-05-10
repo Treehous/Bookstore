@@ -43,24 +43,21 @@ public class BooksForSaleTest {
 		}
 		
 		@Test
-		public void getBookTest()
-		{
+		public void getBookTest(){
 			assertEquals(b1.getBook(), book1);	
 			assertEquals(b2.getBook(), book2);	
 			assertEquals(b3.getBook(), null);	
 		}
 		
 		@Test
-		public void getPriceTest()
-		{	
+		public void getPriceTest(){	
 			assertEquals(b1.getPrice(), "$4.20");	
 			assertEquals(b2.getPrice(), "1");
 			assertEquals(b3.getPrice(), null);
 		}
 		
 		@Test
-		public void getOwnerTest()
-		{
+		public void getOwnerTest(){
 			assertEquals(b1.getOwner(), a1);
 			assertEquals(b2.getOwner(), a2);
 			assertEquals(b3.getOwner(), null);
