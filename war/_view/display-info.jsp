@@ -4,7 +4,6 @@
 
 <html>
 	<head>
-		<title>Search</title>
 		<link rel="stylesheet" type="text/css" href="_view/mainstyle.css">
 	</head>
 
@@ -12,63 +11,48 @@
 		<table>
 			<tr>
 				<td>
-					<form action="${pageContext.servletContext.contextPath}/home" method="post">
-							<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress" value="home"/>
-						</form>
-					
-					<form action="${pageContext.servletContext.contextPath}/search" method="post">
-						<div>
-							<input type="text" name="search" placeholder="Search by title, author, ISBN...">
-						</div>
-						
-						<div>
-						<table>
-							<tr>
-								<td>
-  									<input name="bybutton" type="submit" value="Search by Title" />
-								</td>
-								<td>
-  									<input name="bybutton" type="submit" value="Search by Author" />
-								</td>
-								<td>
-									<input name="bybutton" type="submit" value="Search by ISBN" />
-								</td>
-							</tr>
-						</table>
-						</div>
-						
+					<form action="${pageContext.servletContext.contextPath}/home" method="get">
+						<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress"/>
 					</form>
 					
 					<div>
-					<table>
+					<c:if test="${! empty errorMessage}">
+						<div>${errorMessage}</div>
+					</c:if>
+					
+					<c:if test="${empty errorMessage}">
+						<table>
 						<tr>
-							<td>Pick</td>
-							<td class="bookColHeading">Title</td>
-       						<td class="isbnColHeading">ISBN</td>
-							<td class="nameColHeading">Last Name</td>
-       						<td class="nameColHeading">First Name</td>
+							<td>Book Title: </td>
+							<td> ${bfs.book.title}</td>
 			    		</tr>
-			    		<form action="${pageContext.servletContext.contextPath}/buy-book" method="GET">
-			    		<c:forEach items="${books}" var="book">
-			        		<tr class="bookRow">
-			        			<td><input type="checkbox" name="c${book.title}" value="${book.title}" ></td>
-			            		<td class="bookCol">${book.title}</td>
-			            		<td class="isbnCol">${book.isbn}</td>
-			            		<td class="nameCol">${book.authorslastname}</td>
-			            		<td class="nameCol">${book.authorsfirstname}</td>			            
-			        		</tr>
-			    		</c:forEach> 
-			    		<tr><td>
-			    			<input type="submit" name="buttonPress" value="Buy">
-			    		</td></tr>
-			    		
-			    		</form>
+			    		<tr>
+							<td>Book ISBN: </td>
+							<td> ${bfs.book.isbn}</td>
+			    		</tr>
+			    		<tr>
+							<td>Book Price: </td>
+							<td> ${bfs.price}</td>
+			    		</tr>
+			    		<tr>
+							<td>Book Owner: </td>
+							<td> ${bfs.owner.name}</td>
+			    		</tr>
+			    		<tr>
+							<td>Owner Email: </td>
+							<td> ${bfs.owner.email}</td>
+			    		</tr>
+			    		<tr>
+							<td>Owner Phone Number: </td>
+							<td> ${bfs.owner.phoneNumber}</td>
+			    		</tr>
 			    		</table>
+			    	</c:if>
 					</div>
 				</td>
 				
 				<td>
-					<c:choose>
+						<c:choose>
 				<c:when test="${loggedin}">
 					<div> 
 						<table>
@@ -121,9 +105,16 @@
   						</div>
 					</form>
 				</c:otherwise>
-				</c:choose>		
+				</c:choose>	
 				</td>
-			</tr>
 		</table>
+		
+		<c:if test="${! empty errorMessage}">
+			<div>${errorMessage}</div>
+		</c:if>
+		
+		<c:if test="${! empty successMessage}">
+			<div>${successMessage}</div>
+		</c:if>
 	</body>
 </html>

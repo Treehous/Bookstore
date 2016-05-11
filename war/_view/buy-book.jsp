@@ -26,7 +26,7 @@
 			    		<form action="${pageContext.servletContext.contextPath}/buy-book" method="Post">
 			    		<c:forEach items="${books}" var="bfs">
 			        		<tr class="bookRow">
-			        			<td><input type="checkbox" name="r${bfs.book.title}" value="${bfs.book.title}"></td>
+			        			<td><input type="checkbox" name="c${bfs.book.title}" value="${bfs.book.title}"></td>
 			            		<td class="bookCol">${bfs.book.title}</td>
 			            		<td class="nameCol">${bfs.owner.name}</td>
 			            		<td class="isbnCol">${bfs.price}</td>			            
@@ -34,7 +34,6 @@
 			    		</c:forEach> 
 			    		<tr><td>
 			    			<input type="submit" name="buttonPress" value="Buy">
-			    			<input type="hidden" name="booklist" value="${books}">
 			    		</td></tr>
 			    		
 			    		</form>

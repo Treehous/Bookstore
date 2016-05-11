@@ -23,22 +23,26 @@ public class BuyBookServlet extends HttpServlet {
 			throws ServletException, IOException {
 		LoginController login = new LoginController();
 		if(login.handleLoginCheck(req)){
-			ArrayList<Book> titles = ObjectHandler.castObject(req.getSession().getAttribute("booklist"));
+			Object booklistSession = req.getSession().getAttribute("booklist");
+			ArrayList<Book> titles = ObjectHandler.castObject(booklistSession);
+			
+			//display booksforsale
 			if(titles != null){
 				BuyBookController buy = new BuyBookController();
 				List<BookForSale> books= new ArrayList<BookForSale>();
 				for(Book book: titles){
 					String title = book.getTitle();
-					String radio = req.getParameter("r"+title);
-					if(title.equals(radio)){
+					String check = req.getParameter("c"+title);
+					if(title.equals(check)){
 						books.addAll(buy.getBooksForSaleByTitle(title));
 					}
 				}
 				req.setAttribute("books", books);
-				req.getSession().setAttribute("booklist",books);
+				req.getSession().setAttribute("bfslist",books);
 				req.getRequestDispatcher("/_view/buy-book.jsp").forward(req, resp);
 			}
 			else{
+				
 				req.getRequestDispatcher("/_view/search-result.jsp").forward(req, resp);
 			}
 		}
@@ -52,9 +56,26 @@ public class BuyBookServlet extends HttpServlet {
 			throws ServletException, IOException {
 		LoginController login = new LoginController();
 		if(login.handleLoginCheck(req)){
-			
-			
-			req.getRequestDispatcher("/_view/buy-book.jsp").forward(req, resp);
+			ArrayList<BookForSale> books = ObjectHandler.castObject(req.getSession().getAttribute("bfslist"));
+			String errorMessage = "No book was selected to buy.";
+			if(books != null){
+				for(BookForSale book: books){
+					String title = book.getBook().getTitle();
+					String check = req.getParameter("c"+title);
+					if(title.equals(check)){
+						req.setAttribute("bfs",book);
+						//req.getSession().setAttribute("booklist", null);
+						//req.getSession().setAttribute("bfslist", null);
+						errorMessage = null;
+						break;
+					}
+				}
+				req.setAttribute("errorMessage", errorMessage);
+				req.getRequestDispatcher("/_view/display-info.jsp").forward(req, resp);
+			}
+			else{
+				req.getRequestDispatcher("/_view/search-result.jsp").forward(req, resp);
+			}
 		}
 		else{
 			req.getRequestDispatcher("/_view/login.jsp").forward(req, resp);
