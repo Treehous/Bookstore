@@ -6,6 +6,13 @@
 	<head>
 		<title>YCP Bookstore</title>
 		<link rel="stylesheet" type="text/css" href="_view/mainstyle.css">
+		
+		<style type="text/css">
+		table {
+			border: 5px groove #555;
+		}
+		</style>
+		
 	</head>
 
 	<body>
@@ -23,8 +30,8 @@
 				<tr>
 					<td>  
 						<form action="${pageContext.servletContext.contextPath}/search" method="post">
-							<div>
-								<table>
+							<div class="border">
+								<table class="border">
 									<tr>
 										<input type="text" name="search" placeholder="Search by title, author, ISBN...">
 									</tr>
@@ -50,7 +57,7 @@
 			<td>
 				<c:choose>
 				<c:when test="${loggedin}">
-					<div> 
+					<div class="border"> 
 						<table>
 							<tr>
 								<td>Username: ${account.username}</td>
@@ -93,8 +100,8 @@
 				</c:when>
 				<c:otherwise>
 					<form action="${pageContext.servletContext.contextPath}/create-login" method="get">
-						<div>Username: <input name="Username" type="text" placeholder="Username"/> </div>
-						<div>Password: <input name="Password" type="text" placeholder="Password"/> </div>
+						<div>Username: <input  name="Username" type="text" placeholder="Username"/> </div>
+						<div>Password: <input  name="Password" type="text" placeholder="Password"/> </div>
   						<div> 
   							<input name="buttonPress" type="submit" value="Login" />
   							<input name="buttonPress" type="submit" value="Create" />

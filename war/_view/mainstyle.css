@@ -36,6 +36,7 @@ li a:hover:not(.active) {
     background-color: #3b6e30;
 }
 
+
 div.inlineImage {
     margin: 0 auto;
     text-align: center;
@@ -96,8 +97,19 @@ div.container {
     ul.navBar li.border: none;
 }
 
-input[type=text] {
-    width: 800px;
+input[name="search"]{
+    width: 600px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 3px solid #ccc;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    outline: none;
+}
+
+input[name~="search"] {
+	 width: 200px;
     padding: 12px 20px;
     margin: 8px 0;
     box-sizing: border-box;
@@ -111,7 +123,16 @@ input[type=text]:focus {
     border: 3px solid #555;
 }	
 
-.error {
+div.border {
+	border: 5px groove #555
+}
+
+table{
+	border: 5px groove #555
+}
+
+
+			.error {
 				color: red;
 				font-weight: bold;				
 			}

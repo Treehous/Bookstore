@@ -84,7 +84,7 @@
 				</td>
 		</table>
 		<c:if test="${! empty errorMessage}">
-			<div>${errorMessage}</div>
+			<div.error>${errorMessage}</div>
 		</c:if>
 		
 		<c:if test="${! empty successMessage}">
