@@ -4,6 +4,7 @@
 
 <html>
 	<head>
+		<title>YCP Bookstore</title>
 		<link rel="stylesheet" type="text/css" href="_view/mainstyle.css">
 	</head>
 

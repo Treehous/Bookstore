@@ -6,7 +6,6 @@ import database.DatabaseProvider;
 import database.IDatabase;
 import src.Author;
 import src.Book;
-import src.BookForSale;
 
 public class SearchController {
 	private IDatabase database;

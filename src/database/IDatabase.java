@@ -202,7 +202,7 @@ public class IDatabase {
 						stmt = conn.prepareStatement(
 								"SELECT books_for_sale_by_user.book_id, books_for_sale_by_user.user_id, books_for_sale_by_user.book_price "
 								+ " FROM books, books_for_sale_by_user "
-										+ " WHERE book.title=? AND "
+										+ " WHERE books.title=? AND "
 										+ " books_for_sale_by_user.book_id = books.book_id" );
 						
 						stmt.setString(1, title);

@@ -84,6 +84,8 @@ public class UpdateAccountServlet extends HttpServlet {
 				UpdateAccountController update = new UpdateAccountController();
 				if(!update.updateUserAccount(oldAccount.getUsername(), newAccount)){
 					errorMessage = "Something horrible happened while updating your account.  I don't know what to do. AHhhhhh!!!!!";
+				}else {
+					req.setAttribute("account", newAccount);
 				}
 			}
 			
