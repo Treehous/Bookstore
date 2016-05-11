@@ -6,16 +6,52 @@
 	<head>
 		<title>Search</title>
 		<link rel="stylesheet" type="text/css" href="_view/mainstyle.css">
+		
+		<style type="text/css">
+		table.account{
+			position: fixed;
+			top: 0;
+			right: 0;
+			border: 5px solid #ccc;
+			background-color: white;
+		}
+		input[name="Username"] {
+			width: 200px;
+    		padding: 12px 20px;
+    		margin: 8px 0;
+    		box-sizing: border-box;
+    		border: 3px solid #ccc;
+    		-webkit-transition: 0.5s;
+    		transition: 0.5s;
+   			outline: none;
+		}
+		input[name="Password"] {
+			width: 200px;
+    		padding: 12px 20px;
+    		margin: 8px 0;
+    		box-sizing: border-box;
+    		border: 3px solid #ccc;
+    		-webkit-transition: 0.5s;
+    		transition: 0.5s;
+   			outline: none;
+		}
+		</style>
 	</head>
 
 	<body>
 		<table>
-			<tr>
-				<td>
+		<tr>
+		<td>
+			<table>
+				<tr>
+					<td>
 					<form action="${pageContext.servletContext.contextPath}/home" method="post">
 							<input type="image" src="res/logo.gif.png" alt="YCP Logo" name="buttonPress" value="home"/>
-						</form>
-					
+					</form>
+					</td>
+				</tr>
+				<tr>
+					<td>
 					<form action="${pageContext.servletContext.contextPath}/search" method="post">
 						<div>
 							<input type="text" name="search" placeholder="Search by title, author, ISBN...">
@@ -36,10 +72,11 @@
 							</tr>
 						</table>
 						</div>
-						
 					</form>
-					
-					<div>
+					</td>
+				</tr>
+				<tr>
+					<td>
 					<table>
 						<tr>
 							<td>Pick</td>
@@ -58,20 +95,22 @@
 			            		<td class="nameCol">${book.authorsfirstname}</td>			            
 			        		</tr>
 			    		</c:forEach> 
-			    		<tr><td>
+			    		<tr>
+			    		<td>
 			    			<input type="submit" name="buttonPress" value="Buy">
-			    		</td></tr>
-			    		
+			    		</td>
+			    		</tr>
 			    		</form>
-			    		</table>
-					</div>
-				</td>
-				
-				<td>
+			    	</table>
+			    	</td>
+			    </tr>
+			</table>
+		</td>
+		<td>
 					<c:choose>
 				<c:when test="${loggedin}">
 					<div> 
-						<table>
+						<table class="account">
 							<tr>
 								<td>Username: ${account.username}</td>
 							</tr>
@@ -88,6 +127,7 @@
 								<td>Number of Books for Sale: ${account.numberOfBooksForSale}</td>
 							</tr>
 							<tr>
+							<td>
 								<table>
 								<tr>
 								<td>  
@@ -107,6 +147,7 @@
 								</td>
 								</tr>
 								</table>
+							</td>
 							</tr>
 						</table>
 					</div>
@@ -122,8 +163,8 @@
 					</form>
 				</c:otherwise>
 				</c:choose>		
-				</td>
-			</tr>
+		</td>
+		</tr>
 		</table>
 	</body>
 </html>

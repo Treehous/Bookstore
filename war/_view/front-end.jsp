@@ -8,8 +8,33 @@
 		<link rel="stylesheet" type="text/css" href="_view/mainstyle.css">
 		
 		<style type="text/css">
-		table {
-			border: 5px groove #555;
+		
+		table.account{
+			position: fixed;
+			top: 0;
+			right: 0;
+			border: 5px solid #ccc;
+			background-color: white;
+		}
+		input[name="Username"] {
+			width: 200px;
+    		padding: 12px 20px;
+    		margin: 8px 0;
+    		box-sizing: border-box;
+    		border: 3px solid #ccc;
+    		-webkit-transition: 0.5s;
+    		transition: 0.5s;
+   			outline: none;
+		}
+		input[name="Password"] {
+			width: 200px;
+    		padding: 12px 20px;
+    		margin: 8px 0;
+    		box-sizing: border-box;
+    		border: 3px solid #ccc;
+    		-webkit-transition: 0.5s;
+    		transition: 0.5s;
+   			outline: none;
 		}
 		</style>
 		
@@ -58,7 +83,7 @@
 				<c:choose>
 				<c:when test="${loggedin}">
 					<div class="border"> 
-						<table>
+						<table class="account">
 							<tr>
 								<td>Username: ${account.username}</td>
 							</tr>
@@ -75,6 +100,7 @@
 								<td>Number of Books for Sale: ${account.numberOfBooksForSale}</td>
 							</tr>
 							<tr>
+							<td>
 								<table>
 								<tr>
 								<td>  
@@ -94,6 +120,7 @@
 								</td>
 								</tr>
 								</table>
+							</td>
 							</tr>
 						</table>
 					</div>

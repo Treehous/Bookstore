@@ -15,6 +15,7 @@ public class FrontEndServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		System.out.println("Front End Get");
 		LoginController login = new LoginController();
 		if(login.handleLoginCheck(req)){
 			req.getRequestDispatcher("/_view/front-end.jsp").forward(req, resp);

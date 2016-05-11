@@ -5,6 +5,15 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="_view/mainstyle.css">
+		<style type="text/css">
+		table.account{
+			position: fixed;
+			top: 0;
+			right: 0;
+			border: 5px solid #ccc;
+			background-color: white;
+		}
+		</style>
 	</head>
 
 	<body>
@@ -30,7 +39,7 @@
 					<c:choose>
 				<c:when test="${loggedin}">
 					<div> 
-						<table>
+						<table class="account">
 							<tr>
 								<td>Username: ${account.username}</td>
 							</tr>
@@ -47,6 +56,7 @@
 								<td>Number of Books for Sale: ${account.numberOfBooksForSale}</td>
 							</tr>
 							<tr>
+							<td>
 								<table>
 								<tr>
 								<td>  
@@ -66,6 +76,7 @@
 								</td>
 								</tr>
 								</table>
+							</td>
 							</tr>
 						</table>
 					</div>
